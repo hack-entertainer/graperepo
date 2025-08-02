@@ -13,3 +13,4 @@ npm-debug.log
 yarn-error.log
 public/source_code.zip
 config/services.php
+.DS_Store
