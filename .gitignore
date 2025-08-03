@@ -2,8 +2,21 @@
 /public/hot
 /public/storage
 /vendor
+
 /storage/*
 !/storage/app/public
+# Allow storage subdirs for framework/session/cache/views/logs (but not their contents)
+!storage/framework/
+!storage/framework/sessions/
+!storage/framework/cache/
+!storage/framework/views/
+!storage/logs/
+# Allow .gitkeep files in these dirs
+!storage/framework/sessions/.gitkeep
+!storage/framework/cache/.gitkeep
+!storage/framework/views/.gitkeep
+!storage/logs/.gitkeep
+
 .env
 .env.backup
 .phpunit.result.cache
