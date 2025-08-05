@@ -14,6 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
+        // may need to be changed to match existing logic, or update existing logic
+        DB::statement("CREATE TYPE orders_status AS ENUM ('pending', 'paid', 'shipped', 'cancelled')");
+
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('order_number')->unique('idx_16628_orders_order_number_unique');
@@ -46,5 +49,6 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('orders');
+        DB::statement('DROP TYPE IF EXISTS orders_status');
     }
 };
