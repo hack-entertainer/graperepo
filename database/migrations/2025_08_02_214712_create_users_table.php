@@ -14,6 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
+        DB::statement("CREATE TYPE user_role AS ENUM ('user', 'admin', 'moderator')");
+
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
@@ -38,6 +40,7 @@ return new class extends Migration
      */
     public function down()
     {
+        DB::statement("DROP TYPE IF EXISTS user_role");
         Schema::dropIfExists('users');
     }
 };

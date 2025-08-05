@@ -14,6 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
+        DB::statement("CREATE TYPE product_status AS ENUM ('active', 'inactive', 'archived')");
+
         Schema::create('products', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title');
@@ -42,6 +44,7 @@ return new class extends Migration
      */
     public function down()
     {
+        DB::statement("DROP TYPE IF EXISTS product_status");
         Schema::dropIfExists('products');
     }
 };

@@ -14,6 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
+        DB::statement("CREATE TYPE post_status AS ENUM ('draft', 'published', 'archived')");
+
         Schema::create('posts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title');
@@ -38,6 +40,7 @@ return new class extends Migration
      */
     public function down()
     {
+        DB::statement("DROP TYPE IF EXISTS post_status");
         Schema::dropIfExists('posts');
     }
 };
