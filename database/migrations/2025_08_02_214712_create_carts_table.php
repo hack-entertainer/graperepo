@@ -14,6 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
+        DB::statement("CREATE TYPE carts_status AS ENUM ('new', 'pending', 'completed')"); // Use your actual enum values!
+
         Schema::create('carts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('product_id')->index('idx_16574_carts_product_id_foreign');
@@ -34,6 +36,8 @@ return new class extends Migration
      */
     public function down()
     {
+        DB::statement("DROP TYPE IF EXISTS carts_status");
+
         Schema::dropIfExists('carts');
     }
 };
