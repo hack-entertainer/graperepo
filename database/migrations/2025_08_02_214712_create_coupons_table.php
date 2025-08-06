@@ -9,8 +9,11 @@ return new class extends Migration
 {
     public function up()
     {
-        // 1. Create the enum types BEFORE creating the table
+        // Drop enum types if they exist before creating them
+        DB::statement("DROP TYPE IF EXISTS coupons_type;");
         DB::statement("CREATE TYPE coupons_type AS ENUM ('fixed', 'percent')"); // Adjust as needed
+
+        DB::statement("DROP TYPE IF EXISTS coupons_status;");
         DB::statement("CREATE TYPE coupons_status AS ENUM ('inactive', 'active', 'expired')"); // Adjust as needed
 
         Schema::create('coupons', function (Blueprint $table) {
@@ -33,8 +36,8 @@ return new class extends Migration
     {
         Schema::dropIfExists('coupons');
 
-        // 2. Drop the enum types AFTER dropping the table
-        DB::statement("DROP TYPE IF EXISTS coupons_type");
-        DB::statement("DROP TYPE IF EXISTS coupons_status");
+        // Drop the enum types after dropping the table
+        DB::statement("DROP TYPE IF EXISTS coupons_type;");
+        DB::statement("DROP TYPE IF EXISTS coupons_status;");
     }
 };
