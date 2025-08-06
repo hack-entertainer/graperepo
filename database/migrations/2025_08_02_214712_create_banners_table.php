@@ -14,8 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
+        // Drop enum type if it exists before creating it
+        DB::statement("DROP TYPE IF EXISTS banners_status;");
         DB::statement("CREATE TYPE banners_status AS ENUM ('inactive', 'active', 'archived')");
-
 
         Schema::create('banners', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -36,6 +37,6 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('banners');
-        DB::statement('DROP TYPE IF EXISTS banners_status');
+        DB::statement('DROP TYPE IF EXISTS banners_status;');
     }
 };
