@@ -14,7 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE TYPE post_status AS ENUM ('draft', 'published', 'archived')");
+        // Drop the enum type if it exists before creating it (idempotent)
+        DB::statement("DROP TYPE IF EXISTS posts_status;");
+        DB::statement("CREATE TYPE posts_status AS ENUM ('draft', 'published', 'archived')");
 
         Schema::create('posts', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -30,7 +32,7 @@ return new class extends Migration
             $table->bigInteger('added_by')->nullable()->index('idx_16668_posts_added_by_foreign');
             $table->timestampsTz();
         });
-        DB::statement("ALTER TABLE posts ADD status posts_status DEFAULT 'active' NOT NULL");
+        DB::statement("ALTER TABLE posts ADD status posts_status DEFAULT 'draft' NOT NULL");
     }
 
     /**
@@ -40,7 +42,7 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("DROP TYPE IF EXISTS post_status");
         Schema::dropIfExists('posts');
+        DB::statement("DROP TYPE IF EXISTS posts_status;");
     }
 };
