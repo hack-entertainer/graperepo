@@ -235,6 +235,6 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
 Route::get('list-reports', [ReportsController::class, 'index'])->name('list-reports');
 Route::get('report-detail/{report_number}', [ReportsController::class, 'detail'])->name('report-detail');
 
-Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
-    Lfm::routes();
-});
+// Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+//     Lfm::routes();
+// });
