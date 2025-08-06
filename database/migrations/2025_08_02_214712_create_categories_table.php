@@ -14,6 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
+        DB::statement("CREATE TYPE categories_status AS ENUM ('inactive', 'active', 'archived')"); // Use your actual enum values!
         Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title');
@@ -35,6 +36,7 @@ return new class extends Migration
      */
     public function down()
     {
+        DB::statement("DROP TYPE IF EXISTS categories_status");
         Schema::dropIfExists('categories');
     }
 };
