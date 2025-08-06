@@ -2,35 +2,39 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
+        // 1. Create the enum types BEFORE creating the table
+        DB::statement("CREATE TYPE coupons_type AS ENUM ('fixed', 'percent')"); // Adjust as needed
+        DB::statement("CREATE TYPE coupons_status AS ENUM ('inactive', 'active', 'expired')"); // Adjust as needed
+
         Schema::create('coupons', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('code')->unique('idx_16589_coupons_code_unique');
-            $table->decimal('value', 20);
-            $table->timestampsTz();
+            $table->id();
+            $table->string('code')->unique();
+            $table->enum('type', ['fixed', 'percent'])->default('fixed'); // uses coupons_type
+            $table->decimal('value', 10, 2);
+            $table->decimal('min_order_amount', 10, 2)->nullable();
+            $table->integer('usage_limit')->nullable();
+            $table->integer('used')->default(0);
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
+            $table->enum('status', ['inactive', 'active', 'expired'])->default('active'); // uses coupons_status
+            $table->boolean('active')->default(true);
+            $table->timestamps();
         });
-        DB::statement("ALTER TABLE coupons ADD type coupons_type DEFAULT 'fixed' NOT NULL");
-        DB::statement("ALTER TABLE coupons ADD status coupons_status DEFAULT 'inactive' NOT NULL");
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('coupons');
+
+        // 2. Drop the enum types AFTER dropping the table
+        DB::statement("DROP TYPE IF EXISTS coupons_type");
+        DB::statement("DROP TYPE IF EXISTS coupons_status");
     }
 };
