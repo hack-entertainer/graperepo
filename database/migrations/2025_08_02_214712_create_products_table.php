@@ -14,7 +14,12 @@ return new class extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE TYPE product_status AS ENUM ('active', 'inactive', 'archived')");
+        // Drop and create enums safely
+        DB::statement("DROP TYPE IF EXISTS products_status;");
+        DB::statement("CREATE TYPE products_status AS ENUM ('active', 'inactive', 'archived')");
+
+        DB::statement("DROP TYPE IF EXISTS products_condition;");
+        DB::statement("CREATE TYPE products_condition AS ENUM ('default', 'new', 'hot', 'sale')"); // Adjust as needed!
 
         Schema::create('products', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -33,6 +38,7 @@ return new class extends Migration
             $table->bigInteger('brand_id')->nullable()->index('idx_16685_products_brand_id_foreign');
             $table->timestampsTz();
         });
+
         DB::statement("ALTER TABLE products ADD condition products_condition DEFAULT 'default' NOT NULL");
         DB::statement("ALTER TABLE products ADD status products_status DEFAULT 'inactive' NOT NULL");
     }
@@ -44,7 +50,8 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("DROP TYPE IF EXISTS product_status");
         Schema::dropIfExists('products');
+        DB::statement("DROP TYPE IF EXISTS products_status;");
+        DB::statement("DROP TYPE IF EXISTS products_condition;");
     }
 };
