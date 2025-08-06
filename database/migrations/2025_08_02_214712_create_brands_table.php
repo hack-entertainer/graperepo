@@ -12,7 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Create the Postgres enum type before the table uses it
+        // Drop enum type if it exists before creating it (idempotent)
+        DB::statement("DROP TYPE IF EXISTS brands_status;");
         DB::statement("CREATE TYPE brands_status AS ENUM ('inactive', 'active', 'archived')");
 
         Schema::create('brands', function (Blueprint $table) {
@@ -32,6 +33,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('brands');
-        DB::statement('DROP TYPE IF EXISTS brands_status');
+        DB::statement('DROP TYPE IF EXISTS brands_status;');
     }
 };
