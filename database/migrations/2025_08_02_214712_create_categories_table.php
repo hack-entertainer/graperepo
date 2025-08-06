@@ -14,6 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
+        // Ensure the enum type does not exist before creating it
+        DB::statement("DROP TYPE IF EXISTS categories_status;");
         DB::statement("CREATE TYPE categories_status AS ENUM ('inactive', 'active', 'archived')"); // Use your actual enum values!
         Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -36,7 +38,8 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("DROP TYPE IF EXISTS categories_status");
+        // Drop the table first, then the enum type
         Schema::dropIfExists('categories');
+        DB::statement("DROP TYPE IF EXISTS categories_status;");
     }
 };
