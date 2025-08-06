@@ -14,7 +14,12 @@ return new class extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE TYPE user_role AS ENUM ('user', 'admin', 'moderator')");
+        // Drop enum types if they exist, then create them
+        DB::statement("DROP TYPE IF EXISTS users_role;");
+        DB::statement("CREATE TYPE users_role AS ENUM ('user', 'admin', 'moderator')");
+
+        DB::statement("DROP TYPE IF EXISTS users_status;");
+        DB::statement("CREATE TYPE users_status AS ENUM ('active', 'inactive', 'banned')"); // Add or edit values as needed
 
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -29,6 +34,7 @@ return new class extends Migration
             $table->integer('credits_comment')->default(0);
             $table->timestampsTz();
         });
+
         DB::statement("ALTER TABLE users ADD role users_role DEFAULT 'user' NOT NULL");
         DB::statement("ALTER TABLE users ADD status users_status DEFAULT 'active' NOT NULL");
     }
@@ -40,7 +46,8 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("DROP TYPE IF EXISTS user_role");
         Schema::dropIfExists('users');
+        DB::statement("DROP TYPE IF EXISTS users_role;");
+        DB::statement("DROP TYPE IF EXISTS users_status;");
     }
 };
