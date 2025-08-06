@@ -14,9 +14,14 @@ return new class extends Migration
      */
     public function up()
     {
-        // 1. CREATE all necessary enum types BEFORE using them
+        // Drop enum types if they exist before creating them
+        DB::statement("DROP TYPE IF EXISTS orders_status;");
         DB::statement("CREATE TYPE orders_status AS ENUM ('pending', 'paid', 'shipped', 'cancelled')");
+
+        DB::statement("DROP TYPE IF EXISTS orders_payment_method;");
         DB::statement("CREATE TYPE orders_payment_method AS ENUM ('cod', 'credit_card', 'paypal')"); // <-- update as needed
+
+        DB::statement("DROP TYPE IF EXISTS orders_payment_status;");
         DB::statement("CREATE TYPE orders_payment_status AS ENUM ('unpaid', 'paid', 'refunded')"); // <-- update as needed
 
         Schema::create('orders', function (Blueprint $table) {
@@ -39,7 +44,7 @@ return new class extends Migration
             $table->timestampsTz();
         });
 
-        // 2. Add the enum columns AFTER table creation (since Laravel doesn't natively support custom enums on Postgres)
+        // Add the enum columns AFTER table creation
         DB::statement("ALTER TABLE orders ADD payment_method orders_payment_method DEFAULT 'cod' NOT NULL");
         DB::statement("ALTER TABLE orders ADD payment_status orders_payment_status DEFAULT 'unpaid' NOT NULL");
         DB::statement("ALTER TABLE orders ADD status orders_status DEFAULT 'pending' NOT NULL");
@@ -53,9 +58,9 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('orders');
-        // Drop all enum types
-        DB::statement('DROP TYPE IF EXISTS orders_status');
-        DB::statement('DROP TYPE IF EXISTS orders_payment_method');
-        DB::statement('DROP TYPE IF EXISTS orders_payment_status');
+        // Drop all enum types after dropping the table
+        DB::statement('DROP TYPE IF EXISTS orders_status;');
+        DB::statement('DROP TYPE IF EXISTS orders_payment_method;');
+        DB::statement('DROP TYPE IF EXISTS orders_payment_status;');
     }
 };
