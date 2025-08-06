@@ -14,6 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
+        // Drop enum type if it exists before creating it (idempotent)
+        DB::statement("DROP TYPE IF EXISTS carts_status;");
         DB::statement("CREATE TYPE carts_status AS ENUM ('new', 'pending', 'completed')"); // Use your actual enum values!
 
         Schema::create('carts', function (Blueprint $table) {
@@ -36,8 +38,7 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("DROP TYPE IF EXISTS carts_status");
-
         Schema::dropIfExists('carts');
+        DB::statement("DROP TYPE IF EXISTS carts_status;");
     }
 };
