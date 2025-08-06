@@ -14,8 +14,10 @@ return new class extends Migration
      */
     public function up()
     {
-        // may need to be changed to match existing logic, or update existing logic
+        // 1. CREATE all necessary enum types BEFORE using them
         DB::statement("CREATE TYPE orders_status AS ENUM ('pending', 'paid', 'shipped', 'cancelled')");
+        DB::statement("CREATE TYPE orders_payment_method AS ENUM ('cod', 'credit_card', 'paypal')"); // <-- update as needed
+        DB::statement("CREATE TYPE orders_payment_status AS ENUM ('unpaid', 'paid', 'refunded')"); // <-- update as needed
 
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -36,9 +38,11 @@ return new class extends Migration
             $table->text('address2')->nullable();
             $table->timestampsTz();
         });
+
+        // 2. Add the enum columns AFTER table creation (since Laravel doesn't natively support custom enums on Postgres)
         DB::statement("ALTER TABLE orders ADD payment_method orders_payment_method DEFAULT 'cod' NOT NULL");
         DB::statement("ALTER TABLE orders ADD payment_status orders_payment_status DEFAULT 'unpaid' NOT NULL");
-        DB::statement("ALTER TABLE orders ADD status orders_status DEFAULT 'new' NOT NULL");
+        DB::statement("ALTER TABLE orders ADD status orders_status DEFAULT 'pending' NOT NULL");
     }
 
     /**
@@ -49,6 +53,9 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('orders');
+        // Drop all enum types
         DB::statement('DROP TYPE IF EXISTS orders_status');
+        DB::statement('DROP TYPE IF EXISTS orders_payment_method');
+        DB::statement('DROP TYPE IF EXISTS orders_payment_status');
     }
 };
