@@ -14,6 +14,10 @@ return new class extends Migration
      */
     public function up()
     {
+        // Create the ENUM type first
+        DB::statement("DROP TYPE IF EXISTS reports_payment_status;");
+        DB::statement("CREATE TYPE reports_payment_status AS ENUM ('unpaid', 'paid', 'refunded')");
+
         Schema::create('reports', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('reporter_id')->index('idx_16714_reports_reporter_id_foreign');
@@ -59,5 +63,6 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('reports');
+        DB::statement("DROP TYPE IF EXISTS reports_payment_status;");
     }
 };
