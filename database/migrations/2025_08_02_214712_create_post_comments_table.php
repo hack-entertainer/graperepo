@@ -14,6 +14,10 @@ return new class extends Migration
      */
     public function up()
     {
+        // Create the ENUM type first
+        DB::statement("DROP TYPE IF EXISTS post_comments_status;");
+        DB::statement("CREATE TYPE post_comments_status AS ENUM ('active', 'inactive', 'archived')");
+
         Schema::create('post_comments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id')->nullable()->index('idx_16654_post_comments_user_id_foreign');
@@ -34,5 +38,6 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('post_comments');
+        DB::statement("DROP TYPE IF EXISTS post_comments_status;");
     }
 };
