@@ -63,3 +63,5 @@ chmod -R 775 storage
 php artisan config:cache
 
 Note: may need to migrate this for out-of-the-box function
+
+## ==>>SERVES LOCALLY FROM HERE; TAGGED DEPLOY 0d95a1a<<== ##
