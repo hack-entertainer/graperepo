@@ -65,3 +65,12 @@ php artisan config:cache
 Note: may need to migrate this for out-of-the-box function
 
 ## ==>>SERVES LOCALLY FROM HERE; TAGGED DEPLOY 0d95a1a<<== ##
+
+### [Step 5]
+Fix errors in web.php w/ chat's help
+
+### [Step 6]
+Comment out this glitchy line in web.php, at the end:
+```// Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
+//     Lfm::routes();
+// });```
