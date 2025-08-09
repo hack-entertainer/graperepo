@@ -152,6 +152,8 @@ Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function
     //     ->name('change.password.admin'); // legacy alias
     Route::get('change-password', [AdminController::class, 'changePassword'])->name('admin.password.change.form');
     Route::post('change-password', [AdminController::class, 'changPasswordStore'])->name('admin.password.change');
+    Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
+
 });
 
 // User section start
