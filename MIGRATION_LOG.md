@@ -67,10 +67,55 @@ Note: may need to migrate this for out-of-the-box function
 ## ==>>SERVES LOCALLY FROM HERE; TAGGED DEPLOY 0d95a1a<<== ##
 
 ### [Step 5]
-Fix errors in web.php w/ chat's help
+fix errors in web.php with chat\'s help
 
 ### [Step 6]
 Comment out this glitchy line in web.php, at the end:
 ```// Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
 //     Lfm::routes();
 // });```
+
+### [Step 7]
+create needed directories to fix 'php artisan view:clear'
+`mkdir -p storage/framework/views`
+`chmod -R 775 storage/framework`
+
+### [Step 8]
+## Fixing “Failed to clear cache” in Laravel
+
+If running `php artisan cache:clear` returns:
+
+```
+ERROR  Failed to clear cache. Make sure you have the appropriate permissions.
+```
+
+Follow these steps:
+
+1. **Ensure cache driver is set to `file`**  
+   Edit `.env` and set:
+   ```env
+   CACHE_DRIVER=file
+   ```
+
+2. **Rebuild the cache directory structure**
+   ```bash
+   rm -rf storage/framework/cache
+   mkdir -p storage/framework/cache/data
+   ```
+
+3. **Fix file and folder permissions**
+   ```bash
+   sudo chown -R $USER:$USER storage bootstrap/cache
+   chmod -R 775 storage bootstrap/cache
+   ```
+
+4. **Remove any stale bootstrap cache files**
+   ```bash
+   rm -f bootstrap/cache/*.php
+   ```
+
+5. **Clear the cache**
+   ```bash
+   php artisan cache:clear
+   ```
+
