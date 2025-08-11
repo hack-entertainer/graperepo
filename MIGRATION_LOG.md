@@ -119,3 +119,57 @@ Follow these steps:
    php artisan cache:clear
    ```
 
+# rolled-up instructions after succesful Mint instal:
+# 1. Clone repo & install PHP dependencies
+git clone <your-repo-url> projectname
+cd projectname
+composer install
+
+# 2. Install Node dependencies
+npm install
+
+# 3. Create & configure .env
+cp .env.example .env
+# Edit .env with correct DB credentials, cache driver, and app settings
+
+# 4. Fix Laravel storage symlink
+php artisan storage:link
+
+# 5. Recreate required directories with correct permissions
+mkdir -p storage/framework/{cache,data,sessions,testing,views}
+mkdir -p bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+chown -R $USER:$USER storage bootstrap/cache
+
+# 6. Clear all Laravel caches (after permissions are fixed)
+php artisan cache:clear
+php artisan route:clear
+php artisan config:clear
+php artisan view:clear
+
+# 7. Optimize Laravel (optional)
+php artisan optimize
+
+# 8. Create MySQL database (inside MySQL shell)
+CREATE DATABASE rapereportdbkend_ken CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON rapereportdbkend_ken.* TO 'rapereportdbkend_ken'@'localhost' IDENTIFIED BY '<password>';
+FLUSH PRIVILEGES;
+EXIT;
+
+# 9. Import SQL backup into database
+mysql -u root -p rapereportdbkend_ken < path/to/rapereportdbkend_ken.sql
+
+# 10. Run Laravel migrations (if needed)
+php artisan migrate
+
+# 11. Seed database (if needed)
+php artisan db:seed
+
+# 12. Build frontend assets (Node 17+ requires legacy OpenSSL flag)
+NODE_OPTIONS=--openssl-legacy-provider npm run dev
+# Or for production:
+NODE_OPTIONS=--openssl-legacy-provider npm run prod
+
+# 13. Serve the application locally
+php artisan serve
+# Visit: http://127.0.0.1:8000
