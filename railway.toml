@@ -3,6 +3,8 @@
     "composer install --optimize-autoloader --no-dev",
     "npm install",
     "npm run build",
+    "mkdir -p storage/framework/{cache,data,sessions,testing,views}",
+    "chmod -R 775 storage bootstrap/cache",
     "php artisan config:cache",
     "php artisan route:cache",
     "php artisan view:cache",
