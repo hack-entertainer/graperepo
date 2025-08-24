@@ -26,7 +26,7 @@ class ReportsController extends Controller
             $q = $request->q;
             $query->where(function ($qBuilder) use ($q) {
                 $qBuilder->where('reporter_name', 'like', "%$q%")
-                        ->orWhere('subject_fullname', 'like', "%$q%");
+                    ->orWhere('subject_fullname', 'like', "%$q%");
             });
         }
 
@@ -36,8 +36,7 @@ class ReportsController extends Controller
 
         $reports = $query->latest()->paginate(100);
         // return $posts;
-        return view('frontend.pages.reports.index')->with('reports',$reports);
-        
+        return view('frontend.pages.reports.index')->with('reports', $reports);
     }
 
     /**
@@ -83,6 +82,11 @@ class ReportsController extends Controller
             'alternate_reporter_name' => 'nullable|string',
             'video_file' => 'nullable|file|mimetypes:video/mp4,video/quicktime,video/x-msvideo|max:102400',
             'letter_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+
+
+            // ✅ New rules
+            'confirmation' => 'accepted',   // truth & accuracy
+            'legal_terms'  => 'accepted',   // ToS/legal liability
         ]);
 
         $extraVideoFee = 0;
@@ -92,10 +96,10 @@ class ReportsController extends Controller
 
         if ($request->hasFile('video_file')) {
             $video_file = $request->file('video_file');
-            
+
             $originalName = pathinfo($video_file->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $video_file->getClientOriginalExtension();
-            
+
             $safeName = Str::slug($originalName);
             $timestamp = time();
 
@@ -107,10 +111,10 @@ class ReportsController extends Controller
 
         if ($request->hasFile('letter_file')) {
             $letter_file = $request->file('letter_file');
-            
+
             $originalName_letter = pathinfo($letter_file->getClientOriginalName(), PATHINFO_FILENAME);
             $extension_letter = $letter_file->getClientOriginalExtension();
-            
+
             $safeName_letter = Str::slug($originalName_letter);
             $timestamp_letter = time();
 
@@ -236,7 +240,7 @@ class ReportsController extends Controller
             abort(404, 'Report not found.');
         }
 
-        return view('frontend.pages.reports.detail')->with('report',$report)->with('report_response',$report_response)->with('report_comments',$report_comments);
+        return view('frontend.pages.reports.detail')->with('report', $report)->with('report_response', $report_response)->with('report_comments', $report_comments);
     }
 
     /**
@@ -247,11 +251,11 @@ class ReportsController extends Controller
      */
     public function edit($id)
     {
-        $post=Post::findOrFail($id);
-        $categories=PostCategory::get();
-        $tags=PostTag::get();
-        $users=User::get();
-        return view('backend.post.edit')->with('categories',$categories)->with('users',$users)->with('tags',$tags)->with('post',$post);
+        $post = Post::findOrFail($id);
+        $categories = PostCategory::get();
+        $tags = PostTag::get();
+        $users = User::get();
+        return view('backend.post.edit')->with('categories', $categories)->with('users', $users)->with('tags', $tags)->with('post', $post);
     }
 
     /**
@@ -263,37 +267,35 @@ class ReportsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $post=Post::findOrFail($id);
-         // return $request->all();
-         $this->validate($request,[
-            'title'=>'string|required',
-            'quote'=>'string|nullable',
-            'summary'=>'string|required',
-            'description'=>'string|nullable',
-            'photo'=>'string|nullable',
-            'tags'=>'nullable',
-            'added_by'=>'nullable',
-            'post_cat_id'=>'required',
-            'status'=>'required|in:active,inactive'
+        $post = Post::findOrFail($id);
+        // return $request->all();
+        $this->validate($request, [
+            'title' => 'string|required',
+            'quote' => 'string|nullable',
+            'summary' => 'string|required',
+            'description' => 'string|nullable',
+            'photo' => 'string|nullable',
+            'tags' => 'nullable',
+            'added_by' => 'nullable',
+            'post_cat_id' => 'required',
+            'status' => 'required|in:active,inactive'
         ]);
 
-        $data=$request->all();
-        $tags=$request->input('tags');
+        $data = $request->all();
+        $tags = $request->input('tags');
         // return $tags;
-        if($tags){
-            $data['tags']=implode(',',$tags);
-        }
-        else{
-            $data['tags']='';
+        if ($tags) {
+            $data['tags'] = implode(',', $tags);
+        } else {
+            $data['tags'] = '';
         }
         // return $data;
 
-        $status=$post->fill($data)->save();
-        if($status){
-            request()->session()->flash('success','Post Successfully updated');
-        }
-        else{
-            request()->session()->flash('error','Please try again!!');
+        $status = $post->fill($data)->save();
+        if ($status) {
+            request()->session()->flash('success', 'Post Successfully updated');
+        } else {
+            request()->session()->flash('error', 'Please try again!!');
         }
         return redirect()->route('post.index');
     }
@@ -306,15 +308,14 @@ class ReportsController extends Controller
      */
     public function destroy($id)
     {
-        $post=Post::findOrFail($id);
-       
-        $status=$post->delete();
-        
-        if($status){
-            request()->session()->flash('success','Post successfully deleted');
-        }
-        else{
-            request()->session()->flash('error','Error while deleting post ');
+        $post = Post::findOrFail($id);
+
+        $status = $post->delete();
+
+        if ($status) {
+            request()->session()->flash('success', 'Post successfully deleted');
+        } else {
+            request()->session()->flash('error', 'Error while deleting post ');
         }
         return redirect()->route('post.index');
     }
@@ -335,15 +336,15 @@ class ReportsController extends Controller
             'response_file' => 'nullable|file|max:10240', // giới hạn 10MB
         ]);
 
-        
+
         $filePath = null;
 
         if ($request->hasFile('response_file')) {
             $file = $request->file('response_file');
-            
+
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-            
+
             $safeName = Str::slug($originalName); // 
             $timestamp = time();
 
@@ -376,7 +377,7 @@ class ReportsController extends Controller
                 'price_data' => [
                     'currency' => 'usd',
                     'unit_amount' => 5077, // $50.77
-                    'product_data' => ['name' => 'Subject responses - Report #'.$report->report_number],
+                    'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
                 ],
                 'quantity' => 1,
             ]],
@@ -399,7 +400,7 @@ class ReportsController extends Controller
         // echo "<pre/>";print_r($data);die;
         $report_number = $data['report_number'];
         session()->forget('subject_response_data');
-        
+
         return redirect()->route('report-detail', $report_number)->with('success', 'Your response was posted successfully!');
     }
 
@@ -425,15 +426,15 @@ class ReportsController extends Controller
             'response_file' => 'nullable|file|max:10240', // giới hạn 10MB
         ]);
 
-        
+
         $filePath = null;
 
         if ($request->hasFile('response_file')) {
             $file = $request->file('response_file');
-            
+
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
-            
+
             $safeName = Str::slug($originalName); // 
             $timestamp = time();
 
@@ -466,7 +467,7 @@ class ReportsController extends Controller
                 'price_data' => [
                     'currency' => 'usd',
                     'unit_amount' => 5077, // $50.77
-                    'product_data' => ['name' => 'Subject responses - Report #'.$report->report_number],
+                    'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
                 ],
                 'quantity' => 1,
             ]],
@@ -489,7 +490,7 @@ class ReportsController extends Controller
         // echo "<pre/>";print_r($data);die;
         $report_number = $data['report_number'];
         session()->forget('reporter_reply_data');
-        
+
         return redirect()->route('report-detail', $report_number)->with('success', 'Your response was posted successfully!');
     }
 
@@ -512,7 +513,7 @@ class ReportsController extends Controller
         };
         // get report number
         $report = Reports::where('id', $report_id)->first();
-        
+
         session(['buy_comment_package' => [
             'user_id' => auth()->id(),
             'report_id' => $report_id,
@@ -563,14 +564,4 @@ class ReportsController extends Controller
         session()->forget('buy_comment_package');
         return redirect()->route('user')->with('error', 'Payment was cancelled.');
     }
-
-
-
-
-
-
-
-
-
-
 }
