@@ -153,7 +153,6 @@ Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function
     Route::get('change-password', [AdminController::class, 'changePassword'])->name('admin.password.change.form');
     Route::post('change-password', [AdminController::class, 'changPasswordStore'])->name('admin.password.change');
     Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
-
 });
 
 // User section start
@@ -172,31 +171,46 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
     Route::delete('user-post/comment/delete/{id}', [HomeController::class, 'userCommentDelete'])->name('user.post-comment.delete');
     Route::get('user-post/comment/edit/{id}', [HomeController::class, 'userCommentEdit'])->name('user.post-comment.edit');
     Route::patch('user-post/comment/udpate/{id}', [HomeController::class, 'userCommentUpdate'])->name('user.post-comment.update');
-    // Route::get('change-password', [HomeController::class, 'changePassword'])->name('user.change.password.form');
-    // Route::post('change-password', [HomeController::class, 'changPasswordStore'])
-    //     ->name('user.change.password')
-    //     ->name('change.password.user'); // legacy alias
+
     Route::get('change-password', [HomeController::class, 'changePassword'])->name('user.password.change.form');
     Route::post('change-password', [HomeController::class, 'changPasswordStore'])->name('user.password.change');
 
-    // Reports & comments routes unchanged
+    // Reports
     Route::get('user-reports/form', [ReportsController::class, 'create'])->name('user.add-report.form');
     Route::post('user-reports/store', [ReportsController::class, 'store'])->name('user.add-report');
     Route::get('user-reports/success', [ReportsController::class, 'success'])->name('user.report.success');
     Route::get('user-reports/cancel', [ReportsController::class, 'cancel'])->name('user.report.cancel');
-    Route::post('user-reports/subject-responses/{report_id}', [ReportsController::class, 'subjectResponses'])->name('user.subject-responses.submit');
-    Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])->name('user.subject-responses.success');
-    Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])->name('user.subject-responses.cancel');
+
+    // Subject Responses
+    Route::get('user-reports/subject-responses/{report_number}', [App\Http\Controllers\ReportsController::class, 'showSubjectResponseForm'])
+        ->name('user.subject-responses.form');
+
+    Route::post('user-reports/subject-responses/{report_number}', [App\Http\Controllers\ReportsController::class, 'subjectResponses'])
+        ->name('user.subject-responses.submit');
+
+    Route::get('user-reports/subject-responses/success', [App\Http\Controllers\ReportsController::class, 'subjectResponsesSuccess'])
+        ->name('user.subject-responses.success');
+
+    Route::get('user-reports/subject-responses/cancel', [App\Http\Controllers\ReportsController::class, 'subjectResponsesCancel'])
+        ->name('user.subject-responses.cancel');
+
+
+    // Reporter reply
     Route::post('user-reports/reporter-reply/{report_id}', [ReportsController::class, 'reporterReply'])->name('user.reporter-reply.submit');
     Route::get('user-reports/reporter-reply/success', [ReportsController::class, 'reporterReplySuccess'])->name('user.reporter-reply.success');
     Route::get('user-reports/reporter-reply/cancel', [ReportsController::class, 'reporterReplyCancel'])->name('user.reporter-reply.cancel');
+
+    // Comments
     Route::post('user-reports/comments/{report_id}', [ReportCommentsController::class, 'comments'])->name('user.comments.submit');
     Route::get('user-reports/comments/success', [ReportCommentsController::class, 'commentsSuccess'])->name('user.comments.success');
     Route::get('user-reports/comments/cancel', [ReportCommentsController::class, 'commentsCancel'])->name('user.comments.cancel');
+
+    // Buy comment package
     Route::post('user-reports/buy-comment-package/{report_id}', [ReportsController::class, 'buyCommentPackage'])->name('user.buycomments.submit');
     Route::get('user-reports/buy-comment-package/success', [ReportsController::class, 'buyCommentSuccess'])->name('user.buycomments.success');
     Route::get('user-reports/buy-comment-package/cancel', [ReportsController::class, 'buyCommentCancel'])->name('user.buycomments.cancel');
 });
+
 
 Route::get('list-reports', [ReportsController::class, 'index'])->name('list-reports');
 Route::get('report-detail/{report_number}', [ReportsController::class, 'detail'])->name('report-detail');
