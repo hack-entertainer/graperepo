@@ -12,7 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\PostCommentController;
 use App\Http\Controllers\CouponController;
-use App\Http\Controllers\PayPalController;
+// use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HomeController;
 use UniSharp\LaravelFilemanager\Lfm;
@@ -117,9 +117,9 @@ Route::post('/coupon-store', [CouponController::class, 'couponStore'])
     ->name('coupon-store');
 
 // Payment
-Route::get('payment', [PayPalController::class, 'payment'])->name('payment');
-Route::get('cancel', [PayPalController::class, 'cancel'])->name('payment.cancel');
-Route::get('payment/success', [PayPalController::class, 'success'])->name('payment.success');
+// Route::get('payment', [PayPalController::class, 'payment'])->name('payment');
+// Route::get('cancel', [PayPalController::class, 'cancel'])->name('payment.cancel');
+// Route::get('payment/success', [PayPalController::class, 'success'])->name('payment.success');
 
 // Backend section start
 Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function () {
@@ -155,23 +155,31 @@ Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function
     Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
 });
 
+
 // User section start
 Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
     Route::get('/', [HomeController::class, 'index'])->name('user');
     Route::get('/profile', [HomeController::class, 'profile'])->name('user-profile');
     Route::post('/profile/{id}', [HomeController::class, 'profileUpdate'])->name('user-profile-update');
-    Route::get('/order', "HomeController@orderIndex")->name('user.order.index');
-    Route::get('/order/show/{id}', "HomeController@orderShow")->name('user.order.show');
+
+    // Orders
+    Route::get('/order', [HomeController::class, 'orderIndex'])->name('user.order.index');
+    Route::get('/order/show/{id}', [HomeController::class, 'orderShow'])->name('user.order.show');
     Route::delete('/order/delete/{id}', [HomeController::class, 'userOrderDelete'])->name('user.order.delete');
+
+    // Reviews
     Route::get('/user-review', [HomeController::class, 'productReviewIndex'])->name('user.productreview.index');
     Route::delete('/user-review/delete/{id}', [HomeController::class, 'productReviewDelete'])->name('user.productreview.delete');
     Route::get('/user-review/edit/{id}', [HomeController::class, 'productReviewEdit'])->name('user.productreview.edit');
     Route::patch('/user-review/update/{id}', [HomeController::class, 'productReviewUpdate'])->name('user.productreview.update');
+
+    // Comments (user’s own)
     Route::get('user-post/comment', [HomeController::class, 'userComment'])->name('user.post-comment.index');
     Route::delete('user-post/comment/delete/{id}', [HomeController::class, 'userCommentDelete'])->name('user.post-comment.delete');
     Route::get('user-post/comment/edit/{id}', [HomeController::class, 'userCommentEdit'])->name('user.post-comment.edit');
     Route::patch('user-post/comment/udpate/{id}', [HomeController::class, 'userCommentUpdate'])->name('user.post-comment.update');
 
+    // Password
     Route::get('change-password', [HomeController::class, 'changePassword'])->name('user.password.change.form');
     Route::post('change-password', [HomeController::class, 'changPasswordStore'])->name('user.password.change');
 
@@ -182,25 +190,21 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
     Route::get('user-reports/cancel', [ReportsController::class, 'cancel'])->name('user.report.cancel');
 
     // Subject Responses
-    Route::get('user-reports/subject-responses/{report_number}', [App\Http\Controllers\ReportsController::class, 'showSubjectResponseForm'])
+    Route::get('user-reports/subject-responses/{report_number}', [ReportsController::class, 'showSubjectResponseForm'])
         ->name('user.subject-responses.form');
-
-    Route::post('user-reports/subject-responses/{report_number}', [App\Http\Controllers\ReportsController::class, 'subjectResponses'])
+    Route::post('user-reports/subject-responses/{report_number}', [ReportsController::class, 'subjectResponses'])
         ->name('user.subject-responses.submit');
-
-    Route::get('user-reports/subject-responses/success', [App\Http\Controllers\ReportsController::class, 'subjectResponsesSuccess'])
+    Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
         ->name('user.subject-responses.success');
-
-    Route::get('user-reports/subject-responses/cancel', [App\Http\Controllers\ReportsController::class, 'subjectResponsesCancel'])
+    Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])
         ->name('user.subject-responses.cancel');
-
 
     // Reporter reply
     Route::post('user-reports/reporter-reply/{report_id}', [ReportsController::class, 'reporterReply'])->name('user.reporter-reply.submit');
     Route::get('user-reports/reporter-reply/success', [ReportsController::class, 'reporterReplySuccess'])->name('user.reporter-reply.success');
     Route::get('user-reports/reporter-reply/cancel', [ReportsController::class, 'reporterReplyCancel'])->name('user.reporter-reply.cancel');
 
-    // Comments
+    // Comments (juror/community)
     Route::post('user-reports/comments/{report_id}', [ReportCommentsController::class, 'comments'])->name('user.comments.submit');
     Route::get('user-reports/comments/success', [ReportCommentsController::class, 'commentsSuccess'])->name('user.comments.success');
     Route::get('user-reports/comments/cancel', [ReportCommentsController::class, 'commentsCancel'])->name('user.comments.cancel');
