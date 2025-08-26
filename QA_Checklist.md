@@ -8,22 +8,42 @@
     3. Post a Comment  
   - Status: ❌  
   - Route: `/register` → Redirect choice page  
-  - Notes: Landing & registration bottom links must reflect 3 choices.
+  - Notes: Landing & registration bottom links must reflect 3 choices. 
 
+- [ ] **Landing Page Acknowledgment Middleware**  
+  - Expected: Before accessing protected flows (reporting, answering, commenting), user must check acknowledgment box and submit.  
+  - Status: ❌ Not Implemented  
+  - Route: _(TBD)_  
+  - Notes: Middleware, route, and session handling not in place. Needs:  
+    - Landing page with checkbox form  
+    - POST route to capture acknowledgment  
+    - Middleware to gate protected routes  
+    - Redirect + scroll UX polish after failure  
 ---
 
 ## Reports (Plaintiff Flow)
-- [ ] **Report Creation Form**  
+- [x] **Report Creation Form**  
   - Expected: File new report with unique ID (`YYYY-RRDB-XXXX`), metadata (reporter, subject, case details).  
-  - Status: ⚠️  
+  - Status: ✅  
   - Route: `/report/create`  
-  - Notes: Add standardized IDs + metadata fields.
+  - Notes: IDs + metadata confirmed.
 
-- [ ] **Report Acknowledgment Checkbox**  
+- [x] **Report Type Dropdown**  
+  - Expected: Dropdown with exactly 6 types (Rape, Sexual Assault, Sexual Abuse, Domestic Violence, Stalking, Sexual Harassment), descending seriousness. Backend validation enforces only these values.  
+  - Status: ✅  
+  - Route: `/report/create`  
+  - Notes: Confirmed working & safe.
+
+- [x] **Report Acknowledgment Checkbox**  
   - Expected: Must check box to confirm truth before submission.  
-  - Status: ❌  
-  - Notes: Validation missing.
+  - Status: ✅  
+  - Notes: Validation in place.
 
+- [x] **Report Detail Page**  
+  - Expected: Shows Report Number, Type, Narrative, Evidence (letter/video), Reporter’s Reply, Subject’s Response, Community Comments, and Comment Box.  
+  - Status: ✅  
+  - Route: `/report-detail/{report_number}`  
+  - Notes: Feature-complete from a happy-path perspective. ⚠️ Payment Status not yet needed but will be required if Draft Reports are introduced.
 ---
 
 ## Answers (Defendant Flow)
@@ -110,7 +130,7 @@
 ---
 
 ## Admin Panel
-- [ ] **Admin Login & Dashboard**  
+- [x] **Admin Login & Dashboard**  
   - Expected: Admin CRUD and report oversight.  
   - Status: ✅  
   - Route: `/admin/dashboard`  
