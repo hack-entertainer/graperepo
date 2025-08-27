@@ -321,11 +321,12 @@ class ReportsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function subjectResponses(Request $request, $report_id)
+    public function subjectResponses(Request $request, $report_number)
     {
+        dd($report_number, $report = Reports::where('report_number', $report_number)->first());
+
         $request->validate([
-            'content' => 'required',
-            'acknowledge' => 'accepted',
+            'response_text' => 'required', // ✅ match blade input
             'response_file' => 'nullable|file|max:10240', // 10MB max
         ]);
 
@@ -335,30 +336,28 @@ class ReportsController extends Controller
             $file = $request->file('response_file');
 
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
+            $extension    = $file->getClientOriginalExtension();
 
-            $safeName = Str::slug($originalName);
+            $safeName  = Str::slug($originalName);
             $timestamp = time();
 
-            // new file: bang-chung-abc_1717039999.pdf
             $newFilename = $safeName . '_' . $timestamp . '.' . $extension;
 
-            // save responses
             $filePath = $file->storeAs('reports_responses', $newFilename, 'public');
         }
 
-        // get report number
-        $report = Reports::where('id', $report_id)->first();
+        // ✅ Load by report_number instead of id
+        $report = Reports::where('report_number', $report_number)->firstOrFail();
 
         session(['subject_response_data' => [
-            'user_id' => auth()->id(),
-            'report_id' => $report_id,
-            'report_number' => $report->report_number,
-            'user_fullname' => auth()->user()->name,
-            'type' => 'subject_responses',
-            'content' => $request->content,
-            'file_path' => $filePath,
-            'is_paid' => false,
+            'user_id'        => auth()->id(),
+            'report_id'      => $report->id,
+            'report_number'  => $report->report_number,
+            'user_fullname'  => auth()->user()->name,
+            'type'           => 'subject_responses',
+            'content'        => $request->response_text, // ✅ match input name
+            'file_path'      => $filePath,
+            'is_paid'        => false,
             'payment_status' => 'unpaid',
         ]]);
 
@@ -368,19 +367,22 @@ class ReportsController extends Controller
             'payment_method_types' => ['card'],
             'line_items' => [[
                 'price_data' => [
-                    'currency' => 'usd',
-                    'unit_amount' => 5077, // $50.77
-                    'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
+                    'currency'     => 'usd',
+                    'unit_amount'  => 5077, // $50.77
+                    'product_data' => [
+                        'name' => 'Subject Response - Report #' . $report->report_number,
+                    ],
                 ],
                 'quantity' => 1,
             ]],
-            'mode' => 'payment',
+            'mode'        => 'payment',
             'success_url' => route('user.subject-responses.success'),
-            'cancel_url' => route('user.subject-responses.cancel'),
+            'cancel_url'  => route('user.subject-responses.cancel'),
         ]);
 
         return redirect($checkout_session->url);
     }
+
 
 
     public function showSubjectResponseForm($report_number)

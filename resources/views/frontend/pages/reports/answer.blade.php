@@ -9,7 +9,7 @@
 
       <h2 class="mb-4 text-center">Submit Answer to Report #{{ $report->report_number }}</h2>
 
-      <form action="{{ route('user.subject-responses', $report->id) }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('user.subject-responses.submit', $report->report_number) }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Defendant Answer -->
