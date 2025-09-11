@@ -194,10 +194,15 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
         ->name('user.subject-responses.form');
     Route::post('user-reports/subject-responses/{report_number}', [ReportsController::class, 'subjectResponses'])
         ->name('user.subject-responses.submit');
-    Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
+    // Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
+    //     ->name('user.subject-responses.success');
+    Route::get('user-reports/subject-responses/success', [ReportsController::class, 'debugSuccess'])
         ->name('user.subject-responses.success');
+
     Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])
         ->name('user.subject-responses.cancel');
+
+    //http://localhost:8000/user/user-reports/subject-responses/success
 
     // Reporter reply
     Route::post('user-reports/reporter-reply/{report_id}', [ReportsController::class, 'reporterReply'])->name('user.reporter-reply.submit');

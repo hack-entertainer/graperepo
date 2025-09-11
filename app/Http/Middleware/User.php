@@ -15,10 +15,12 @@ class User
      */
     public function handle($request, Closure $next)
     {
-        if(empty(session('user'))){
+
+        if (empty(session('user'))) {
             return redirect()->route('login.form');
-        }
-        else{
+        } else {
+            // dd($next);
+            // dd('user middleware hit', auth()->check(), auth()->id());
             return $next($request);
         }
     }
