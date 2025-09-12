@@ -1,0 +1,2 @@
+dashboard link on users goes to global reports page -> not "cash money"
+i.e. all users see same dashboard of all cases; very sloppy
