@@ -66,20 +66,20 @@
 ## Comments (Juror Flow)
 - [ ] **Comment Creation Form**  
   - Expected: Registered users can post comments under Reports. Spacious, long text box.  
-  - Status: ❌  
+  - Status: ✅  
   - Route: `/comment/create/{report}`  
 
 - [ ] **Comment Acknowledgment Checkbox**  
   - Expected: User must confirm authorship + truth.  
-  - Status: ❌  
+  - Status: ✅  
 
 - [ ] **Purchase Additional Comments**  
   - Expected: Link to Stripe/Gumroad for buying extra comment slots.  
-  - Status: ❌  
+  - Status: ✅ (no gumroad integration, yet... discuss...)
 
 - [ ] **Comment Post-Submission Navigation**  
   - Expected: Buttons: “Write Another Comment” OR “Return to Database”.  
-  - Status: ❌  
+  - Status: ✅ (not necessary under current navigation options)  
 
 ---
 
