@@ -249,16 +249,20 @@
             @auth
             @if(auth()->user()->credits_comment > 0)
             <!-- Cho phép comment -->
-            <form action="{{ route('user.comments.submit', $report->id) }}" method="POST">
-              @csrf
-              <textarea name="content" class="form-control mb-2" rows="3" placeholder="Write your comment..." required></textarea>
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">
-                  💬 You have <strong>{{ auth()->user()->credits_comment }}</strong> comment credit{{ auth()->user()->credits_comment > 1 ? 's' : '' }} remaining.
-                </small>
-                <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
-              </div>
-            </form>
+           <form action="{{ route('user.comments.submit', $report->id) }}" method="POST">
+    @csrf
+    <textarea name="content" class="form-control mb-3" rows="4" placeholder="Write your comment..." required></textarea>
+
+    <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="acknowledge" id="acknowledge" value="1" required>
+        <label class="form-check-label" for="acknowledge">
+            I acknowledge that I, {{ Auth::user()->name ?? "this user" }}, wrote this comment and stand behind every factual statement made herein.
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Comment</button>
+</form>
+
             @else
             <!-- Không đủ lượt, hiển thị modal mua -->
             <textarea class="form-control mb-2" rows="3" placeholder="You must buy comment credits to comment..." disabled></textarea>
