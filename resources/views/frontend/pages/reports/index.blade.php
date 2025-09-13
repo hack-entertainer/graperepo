@@ -44,7 +44,7 @@
 		</div>
 
 		<div class="table-responsive">
-			@if(count($reports)>0)
+			@if(($reports && $reports->count()) || ($answers && $answers->count()) || ($comments && $comments->count()))
 			<table class="table table-striped table-bordered align-middle text-center table-hover">
 				<thead class="table-dark">
 					<tr>
@@ -84,88 +84,55 @@
 					@endforeach
 					{{-- Existing Reports loop --}}
 
-					{{-- New: Answers --}}
-					@if(isset($answers) && $answers->count())
-					<h3 class="mt-5">📝 Answers</h3>
-					@foreach($answers as $answer)
-					<div class="card mb-3">
-						<div class="card-body">
-							<p>{{ Str::limit($answer->content, 200) }}</p>
-							<small>By {{ $answer->user_fullname }}
-								in <a href="{{ route('report-detail',$answer->report_id) }}">
-									Report #{{ $answer->report_id }}
-								</a>
-							</small>
-						</div>
-					</div>
-					@endforeach
-					{{ $answers->withQueryString()->links() }}
-					@endif
-					<!-- 
-					{{-- New: Comments --}}
-					@if(isset($comments) && $comments->count())
-					<h3 class="mt-5">💬 Comments</h3>
-					@foreach($comments as $comment)
-					<div class="card mb-3">
-						<div class="card-body">
-							<p>{{ Str::limit($comment->content, 200) }}</p>
-							<small>By {{ $comment->user_fullname }}
-								in <a href="{{ route('report-detail',$comment->report_id) }}">
-									Report #{{ $comment->report_id }}
-								</a>
-							</small>
-						</div>
-					</div>
-					@endforeach
-					{{ $comments->withQueryString()->links() }}
-					@endif -->
-
-					{{-- Comments --}}
-					@if(isset($comments) && $comments->count())
-					<h3 class="mt-5">💬 Comments</h3>
-					@foreach($comments as $comment)
-					<div class="card mb-3">
-						<div class="card-body">
-							<p>{{ Str::limit($comment->content, 200) }}</p>
-							<small>
-								By {{ $comment->user_fullname }}
-								in <a href="{{ route('report-detail',$comment->report_id) }}">
-									Report #{{ $comment->report_id }}
-								</a>
-							</small>
-						</div>
-					</div>
-					@endforeach
-					{{ $comments->withQueryString()->links() }}
-					@endif
-
-
-					{{-- Empty results --}}
-					@if(request()->filled('q') && !$reports->count() && !$answers->count() && !$comments->count())
+					@if(request()->filled('q')
+					&& (!$reports || !$reports->count())
+					&& (!$answers || !$answers->count())
+					&& (!$comments || !$comments->count()))
 					<p>No results found.</p>
 					@endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 				</tbody>
 
 			</table>
 
+			{{-- New: Answers --}}
+			@if(isset($answers) && $answers->count())
+			<h3 class="mt-5">📝 Answers</h3>
+			@foreach($answers as $answer)
+			<div class="card mb-3">
+				<div class="card-body">
+					<p>{{ Str::limit($answer->content, 200) }}</p>
+					<small>By {{ $answer->user_fullname }}
+						in <a href="{{ route('report-detail',$answer->report_id) }}">
+							Report #{{ $answer->report_id }}
+						</a>
+					</small>
+				</div>
+			</div>
+			@endforeach
+			{{ $answers->withQueryString()->links() }}
+			@endif
+
+
+
+			{{-- Comments --}}
+			@if(isset($comments) && $comments->count())
+			<h3 class="mt-5">💬 Comments</h3>
+			@foreach($comments as $comment)
+			<div class="card mb-3">
+				<div class="card-body">
+					<p>{{ Str::limit($comment->content, 200) }}</p>
+					<small>
+						By {{ $comment->user_fullname }}
+						in <a href="{{ route('report-detail',$comment->report_id) }}">
+							Report #{{ $comment->report_id }}
+						</a>
+					</small>
+				</div>
+			</div>
+			@endforeach
+			{{ $comments->withQueryString()->links() }}
+			@endif
 			@else
 			<h6 class="text-center">No report found!!! </h6>
 			@endif

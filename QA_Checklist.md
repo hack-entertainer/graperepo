@@ -99,11 +99,11 @@
 
 - [ ] **Search by User (Author)**  
   - Expected: Search reports/answers/comments by user name.  
-  - Status: ❌  
+  - Status: ✅  
 
 - [ ] **Return to Database after Submission**  
   - Expected: All flows should provide “Return to DB/Search” button.  
-  - Status: ❌  
+  - Status: ✅  
 
 ---
 
