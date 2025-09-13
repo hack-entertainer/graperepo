@@ -94,7 +94,7 @@
 ## Database & Search
 - [ ] **Search by Report ID**  
   - Expected: Search & retrieve by case ID (`YYYY-RRDB-XXXX`).  
-  - Status: ⚠️  
+  - Status: ✅  
   - Notes: Currently limited to Report title/ID only.  
 
 - [ ] **Search by User (Author)**  
