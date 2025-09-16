@@ -27,15 +27,20 @@ class ReportsController extends Controller
 		if ($request->filled('q')) {
 			$q = $request->q;
 
-			// Search Reports
-			$reports = Reports::where(function ($qBuilder) use ($q) {
+			// Build Reports query
+			$reportsQuery = Reports::where(function ($qBuilder) use ($q) {
 				$qBuilder->where('reporter_name', 'like', "%$q%")
 					->orWhere('subject_fullname', 'like', "%$q%")
 					->orWhere('report_number', 'like', "%$q%");
-			})
-				->latest()
-				->paginate(50, ['*'], 'reports_page');
+			});
 
+			// Apply incident type filter
+			if ($request->filled('type_event')) {
+				$reportsQuery->where('type_event', $request->type_event);
+			}
+
+			// Paginate results
+			$reports = $reportsQuery->latest()->paginate(50, ['*'], 'reports_page');
 
 			// Search Answers
 			$answers = ReportResponse::whereRaw('LOWER(user_fullname) LIKE ?', ['%' . strtolower($q) . '%'])
@@ -46,15 +51,20 @@ class ReportsController extends Controller
 			$comments = ReportComments::whereRaw('LOWER(user_fullname) LIKE ?', ['%' . strtolower($q) . '%'])
 				->latest()
 				->paginate(50, ['*'], 'comments_page');
-
-			// dd($comments);
 		} else {
-			// Default: just show reports (as before)
-			$reports = Reports::latest()->paginate(50, ['*'], 'reports_page');
+			// Default: just show reports (with optional type filter)
+			$reportsQuery = Reports::query();
+
+			if ($request->filled('type_event')) {
+				$reportsQuery->where('type_event', $request->type_event);
+			}
+
+			$reports = $reportsQuery->latest()->paginate(50, ['*'], 'reports_page');
 		}
 
 		return view('frontend.pages.reports.index', compact('reports', 'answers', 'comments'));
 	}
+
 
 
 	/**
