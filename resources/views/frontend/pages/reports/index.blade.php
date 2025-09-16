@@ -102,9 +102,10 @@
 			<div class="card mb-3">
 				<div class="card-body">
 					<p>{{ Str::limit($answer->content, 200) }}</p>
-					<small>By {{ $answer->user_fullname }}
-						in <a href="{{ route('report-detail',$answer->report_id) }}">
-							Report #{{ $answer->report_id }}
+					<small>
+						By {{ $answer->user_fullname }}
+						in <a href="{{ route('report-detail',$answer->report->report_number) }}">
+							Report #{{ $answer->report->report_number }}
 						</a>
 					</small>
 				</div>
@@ -112,7 +113,6 @@
 			@endforeach
 			{{ $answers->withQueryString()->links() }}
 			@endif
-
 
 
 			{{-- Comments --}}
@@ -124,8 +124,8 @@
 					<p>{{ Str::limit($comment->content, 200) }}</p>
 					<small>
 						By {{ $comment->user_fullname }}
-						in <a href="{{ route('report-detail',$comment->report_id) }}">
-							Report #{{ $comment->report_id }}
+						in <a href="{{ route('report-detail',$comment->report->report_number) }}">
+							Report #{{ $comment->report->report_number }}
 						</a>
 					</small>
 				</div>
@@ -133,6 +133,7 @@
 			@endforeach
 			{{ $comments->withQueryString()->links() }}
 			@endif
+
 			@else
 			<h6 class="text-center">No report found!!! </h6>
 			@endif
