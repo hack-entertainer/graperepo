@@ -254,17 +254,43 @@ class ReportsController extends Controller
 	{
 		// get detail report
 		$report = Reports::where('report_number', $report_number)->first();
-		// report responses
-		$report_response = ReportResponse::where('report_id', $report->id)->orderBy('created_at', 'desc')->get();
-		// get comment
-		$report_comments = ReportComments::where('report_id', $report->id)->orderBy('created_at', 'desc')->get();
 
+		// check existence before accessing properties
 		if (!$report) {
 			abort(404, 'Report not found.');
 		}
 
-		return view('frontend.pages.reports.detail')->with('report', $report)->with('report_response', $report_response)->with('report_comments', $report_comments);
+		// report responses
+		$report_response = ReportResponse::where('report_id', $report->id)
+			->orderBy('created_at', 'desc')
+			->get();
+
+		// get comments
+		$report_comments = ReportComments::where('report_id', $report->id)
+			->orderBy('created_at', 'desc')
+			->get();
+
+		return view('frontend.pages.reports.detail')
+			->with('report', $report)
+			->with('report_response', $report_response)
+			->with('report_comments', $report_comments);
 	}
+
+	// public function detail($report_number)
+	// {
+	// 	// get detail report
+	// 	$report = Reports::where('report_number', $report_number)->first();
+	// 	// report responses
+	// 	$report_response = ReportResponse::where('report_id', $report->id)->orderBy('created_at', 'desc')->get();
+	// 	// get comment
+	// 	$report_comments = ReportComments::where('report_id', $report->id)->orderBy('created_at', 'desc')->get();
+
+	// 	if (!$report) {
+	// 		abort(404, 'Report not found.');
+	// 	}
+
+	// 	return view('frontend.pages.reports.detail')->with('report', $report)->with('report_response', $report_response)->with('report_comments', $report_comments);
+	// }
 
 	/**
 	 * Show the form for editing the specified resource.
