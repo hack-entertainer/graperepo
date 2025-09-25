@@ -587,7 +587,8 @@ class ReportsController extends Controller
 				'quantity' => 1,
 			]],
 			'mode' => 'payment',
-			'success_url' => route('user.reporter-reply.success'),
+			// 'success_url' => route('user.reporter-reply.success'),
+			'success_url' => route('home'),
 			'cancel_url' => route('user.reporter-reply.cancel'),
 		]);
 
@@ -606,6 +607,7 @@ class ReportsController extends Controller
 		$report_number = $data['report_number'];
 		session()->forget('reporter_reply_data');
 
+		dd($report_number);
 		return redirect()->route('report-detail', $report_number)->with('success', 'Your response was posted successfully!');
 	}
 

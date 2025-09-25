@@ -21,9 +21,9 @@ use App\Http\Controllers\ReportCommentsController;
 
 // CACHE CLEAR ROUTE
 Route::get('cache-clear', function () {
-    Artisan::call('optimize:clear');
-    request()->session()->flash('success', 'Successfully cache cleared.');
-    return redirect()->back();
+	Artisan::call('optimize:clear');
+	request()->session()->flash('success', 'Successfully cache cleared.');
+	return redirect()->back();
 })->name('cache.clear');
 
 // STORAGE LINKED ROUTE
@@ -49,6 +49,7 @@ Route::get('login/{provider}/', [LoginController::class, 'redirect'])->name('log
 Route::get('login/{provider}/callback/', [LoginController::class, 'Callback'])->name('login.callback');
 
 Route::get('/', [FrontendController::class, 'home'])->name('home');
+Route::get('/dome', [FrontendController::class, 'dome'])->name('dome');
 
 // Frontend Routes
 Route::get('/home', [FrontendController::class, 'index']);
@@ -113,8 +114,8 @@ Route::resource('/comment', PostCommentController::class);
 
 // Coupon
 Route::post('/coupon-store', [CouponController::class, 'couponStore'])
-    ->name('coupon.store.custom')
-    ->name('coupon-store');
+	->name('coupon.store.custom')
+	->name('coupon-store');
 
 // Payment
 // Route::get('payment', [PayPalController::class, 'payment'])->name('payment');
@@ -123,101 +124,107 @@ Route::post('/coupon-store', [CouponController::class, 'couponStore'])
 
 // Backend section start
 Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function () {
-    Route::get('/', [AdminController::class, 'index'])->name('admin');
-    Route::get('/file-manager', fn() => view('backend.layouts.file-manager'))->name('file-manager');
-    Route::resource('users', 'UsersController');
-    Route::resource('banner', 'BannerController');
-    Route::resource('brand', 'BrandController');
-    Route::get('/profile', [AdminController::class, 'profile'])->name('admin-profile');
-    Route::post('/profile/{id}', [AdminController::class, 'profileUpdate'])->name('profile-update');
-    Route::resource('/category', 'CategoryController');
-    Route::resource('/product', 'ProductController');
-    Route::post('/category/{id}/child', 'CategoryController@getChildByParent');
-    Route::resource('/post-category', 'PostCategoryController');
-    Route::resource('/post-tag', 'PostTagController');
-    Route::resource('/post', 'PostController');
-    Route::resource('/message', 'MessageController');
-    Route::get('/message/five', [MessageController::class, 'messageFive'])->name('messages.five');
-    Route::resource('/order', 'OrderController');
-    Route::resource('/shipping', 'ShippingController');
-    Route::resource('/coupon', 'CouponController');
-    Route::get('settings', [AdminController::class, 'settings'])->name('settings');
-    Route::post('setting/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
-    Route::get('/notification/{id}', [NotificationController::class, 'show'])->name('admin.notification');
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('all.notification');
-    Route::delete('/notification/{id}', [NotificationController::class, 'delete'])->name('notification.delete');
-    // Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
-    // Route::post('change-password', [AdminController::class, 'changPasswordStore'])
-    //     ->name('admin.change.password')
-    //     ->name('change.password.admin'); // legacy alias
-    Route::get('change-password', [AdminController::class, 'changePassword'])->name('admin.password.change.form');
-    Route::post('change-password', [AdminController::class, 'changPasswordStore'])->name('admin.password.change');
-    Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
+	Route::get('/', [AdminController::class, 'index'])->name('admin');
+	Route::get('/file-manager', fn() => view('backend.layouts.file-manager'))->name('file-manager');
+	Route::resource('users', 'UsersController');
+	Route::resource('banner', 'BannerController');
+	Route::resource('brand', 'BrandController');
+	Route::get('/profile', [AdminController::class, 'profile'])->name('admin-profile');
+	Route::post('/profile/{id}', [AdminController::class, 'profileUpdate'])->name('profile-update');
+	Route::resource('/category', 'CategoryController');
+	Route::resource('/product', 'ProductController');
+	Route::post('/category/{id}/child', 'CategoryController@getChildByParent');
+	Route::resource('/post-category', 'PostCategoryController');
+	Route::resource('/post-tag', 'PostTagController');
+	Route::resource('/post', 'PostController');
+	Route::resource('/message', 'MessageController');
+	Route::get('/message/five', [MessageController::class, 'messageFive'])->name('messages.five');
+	Route::resource('/order', 'OrderController');
+	Route::resource('/shipping', 'ShippingController');
+	Route::resource('/coupon', 'CouponController');
+	Route::get('settings', [AdminController::class, 'settings'])->name('settings');
+	Route::post('setting/update', [AdminController::class, 'settingsUpdate'])->name('settings.update');
+	Route::get('/notification/{id}', [NotificationController::class, 'show'])->name('admin.notification');
+	Route::get('/notifications', [NotificationController::class, 'index'])->name('all.notification');
+	Route::delete('/notification/{id}', [NotificationController::class, 'delete'])->name('notification.delete');
+	// Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
+	// Route::post('change-password', [AdminController::class, 'changPasswordStore'])
+	//     ->name('admin.change.password')
+	//     ->name('change.password.admin'); // legacy alias
+	Route::get('change-password', [AdminController::class, 'changePassword'])->name('admin.password.change.form');
+	Route::post('change-password', [AdminController::class, 'changPasswordStore'])->name('admin.password.change');
+	Route::get('change-password', [AdminController::class, 'changePassword'])->name('change.password.form');
 });
 
 
 // User section start
 Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
-    Route::get('/', [HomeController::class, 'index'])->name('user');
-    Route::get('/profile', [HomeController::class, 'profile'])->name('user-profile');
-    Route::post('/profile/{id}', [HomeController::class, 'profileUpdate'])->name('user-profile-update');
+	Route::get('/', [HomeController::class, 'index'])->name('user');
+	Route::get('/profile', [HomeController::class, 'profile'])->name('user-profile');
+	Route::post('/profile/{id}', [HomeController::class, 'profileUpdate'])->name('user-profile-update');
 
-    // Orders
-    Route::get('/order', [HomeController::class, 'orderIndex'])->name('user.order.index');
-    Route::get('/order/show/{id}', [HomeController::class, 'orderShow'])->name('user.order.show');
-    Route::delete('/order/delete/{id}', [HomeController::class, 'userOrderDelete'])->name('user.order.delete');
+	// Orders
+	Route::get('/order', [HomeController::class, 'orderIndex'])->name('user.order.index');
+	Route::get('/order/show/{id}', [HomeController::class, 'orderShow'])->name('user.order.show');
+	Route::delete('/order/delete/{id}', [HomeController::class, 'userOrderDelete'])->name('user.order.delete');
 
-    // Reviews
-    Route::get('/user-review', [HomeController::class, 'productReviewIndex'])->name('user.productreview.index');
-    Route::delete('/user-review/delete/{id}', [HomeController::class, 'productReviewDelete'])->name('user.productreview.delete');
-    Route::get('/user-review/edit/{id}', [HomeController::class, 'productReviewEdit'])->name('user.productreview.edit');
-    Route::patch('/user-review/update/{id}', [HomeController::class, 'productReviewUpdate'])->name('user.productreview.update');
+	// Reviews
+	Route::get('/user-review', [HomeController::class, 'productReviewIndex'])->name('user.productreview.index');
+	Route::delete('/user-review/delete/{id}', [HomeController::class, 'productReviewDelete'])->name('user.productreview.delete');
+	Route::get('/user-review/edit/{id}', [HomeController::class, 'productReviewEdit'])->name('user.productreview.edit');
+	Route::patch('/user-review/update/{id}', [HomeController::class, 'productReviewUpdate'])->name('user.productreview.update');
 
-    // Comments (user’s own)
-    Route::get('user-post/comment', [HomeController::class, 'userComment'])->name('user.post-comment.index');
-    Route::delete('user-post/comment/delete/{id}', [HomeController::class, 'userCommentDelete'])->name('user.post-comment.delete');
-    Route::get('user-post/comment/edit/{id}', [HomeController::class, 'userCommentEdit'])->name('user.post-comment.edit');
-    Route::patch('user-post/comment/udpate/{id}', [HomeController::class, 'userCommentUpdate'])->name('user.post-comment.update');
+	// Comments (user’s own)
+	Route::get('user-post/comment', [HomeController::class, 'userComment'])->name('user.post-comment.index');
+	Route::delete('user-post/comment/delete/{id}', [HomeController::class, 'userCommentDelete'])->name('user.post-comment.delete');
+	Route::get('user-post/comment/edit/{id}', [HomeController::class, 'userCommentEdit'])->name('user.post-comment.edit');
+	Route::patch('user-post/comment/udpate/{id}', [HomeController::class, 'userCommentUpdate'])->name('user.post-comment.update');
 
-    // Password
-    Route::get('change-password', [HomeController::class, 'changePassword'])->name('user.password.change.form');
-    Route::post('change-password', [HomeController::class, 'changPasswordStore'])->name('user.password.change');
+	// Password
+	Route::get('change-password', [HomeController::class, 'changePassword'])->name('user.password.change.form');
+	Route::post('change-password', [HomeController::class, 'changPasswordStore'])->name('user.password.change');
 
-    // Reports
-    Route::get('user-reports/form', [ReportsController::class, 'create'])->name('user.add-report.form');
-    Route::post('user-reports/store', [ReportsController::class, 'store'])->name('user.add-report');
-    Route::get('user-reports/success', [ReportsController::class, 'success'])->name('user.report.success');
-    Route::get('user-reports/cancel', [ReportsController::class, 'cancel'])->name('user.report.cancel');
+	// Reports
+	Route::get('user-reports/form', [ReportsController::class, 'create'])->name('user.add-report.form');
+	Route::post('user-reports/store', [ReportsController::class, 'store'])->name('user.add-report');
+	Route::get('user-reports/success', [ReportsController::class, 'success'])->name('user.report.success');
+	Route::get('user-reports/cancel', [ReportsController::class, 'cancel'])->name('user.report.cancel');
 
-    // Subject Responses
-    Route::get('user-reports/subject-responses/{report_number}', [ReportsController::class, 'showSubjectResponseForm'])
-        ->name('user.subject-responses.form');
-    Route::post('user-reports/subject-responses/{report_number}', [ReportsController::class, 'subjectResponses'])
-        ->name('user.subject-responses.submit');
-    // Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
-    //     ->name('user.subject-responses.success');
-    Route::get('user-reports/subject-responses/success', [ReportsController::class, 'debugSuccess'])
-        ->name('user.subject-responses.success');
+	// Subject Responses
+	Route::get('user-reports/subject-responses/{report_number}', [ReportsController::class, 'showSubjectResponseForm'])
+		->name('user.subject-responses.form');
+	Route::post('user-reports/subject-responses/{report_number}', [ReportsController::class, 'subjectResponses'])
+		->name('user.subject-responses.submit');
+	// Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
+	//     ->name('user.subject-responses.success');
+	Route::get('user-reports/subject-responses/success', [ReportsController::class, 'debugSuccess'])
+		->name('user.subject-responses.success');
 
-    Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])
-        ->name('user.subject-responses.cancel');
+	Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])
+		->name('user.subject-responses.cancel');
 
-    //http://localhost:8000/user/user-reports/subject-responses/success
 
-    // Reporter reply
-    Route::post('user-reports/reporter-reply/{report_id}', [ReportsController::class, 'reporterReply'])->name('user.reporter-reply.submit');
-    Route::get('user-reports/reporter-reply/success', [ReportsController::class, 'reporterReplySuccess'])->name('user.reporter-reply.success');
-    Route::get('user-reports/reporter-reply/cancel', [ReportsController::class, 'reporterReplyCancel'])->name('user.reporter-reply.cancel');
 
-    // Comments (juror/community)
-    Route::post('user-reports/comments/{report_id}', [ReportCommentsController::class, 'comments'])->name('user.comments.submit');
-    Route::get('user-reports/comments/success', [ReportCommentsController::class, 'commentsSuccess'])->name('user.comments.success');
-    Route::get('user-reports/comments/cancel', [ReportCommentsController::class, 'commentsCancel'])->name('user.comments.cancel');
+	//http://localhost:8000/user/user-reports/subject-responses/success
 
-    // Buy comment package
-    Route::post('user-reports/buy-comment-package/{report_id}', [ReportsController::class, 'buyCommentPackage'])->name('user.buycomments.submit');
-    Route::get('user-reports/buy-comment-package/success', [ReportsController::class, 'buyCommentSuccess'])->name('user.buycomments.success');
-    Route::get('user-reports/buy-comment-package/cancel', [ReportsController::class, 'buyCommentCancel'])->name('user.buycomments.cancel');
+	// Reporter reply
+	Route::post('user-reports/reporter-reply/{report_id}', [ReportsController::class, 'reporterReply'])->name('user.reporter-reply.submit');
+	Route::get('user-reports/reporter-reply/success', [ReportsController::class, 'reporterReplySuccess'])->name('user.reporter-reply.success');
+	Route::get('user-reports/reporter-reply/cancel', [ReportsController::class, 'reporterReplyCancel'])->name('user.reporter-reply.cancel');
+
+	Route::get('report-detail/{report_number}', [ReportsController::class, 'detail'])->name('report-detail');
+
+
+
+	// Comments (juror/community)
+	Route::post('user-reports/comments/{report_id}', [ReportCommentsController::class, 'comments'])->name('user.comments.submit');
+	Route::get('user-reports/comments/success', [ReportCommentsController::class, 'commentsSuccess'])->name('user.comments.success');
+	Route::get('user-reports/comments/cancel', [ReportCommentsController::class, 'commentsCancel'])->name('user.comments.cancel');
+
+	// Buy comment package
+	Route::post('user-reports/buy-comment-package/{report_id}', [ReportsController::class, 'buyCommentPackage'])->name('user.buycomments.submit');
+	Route::get('user-reports/buy-comment-package/success', [ReportsController::class, 'buyCommentSuccess'])->name('user.buycomments.success');
+	Route::get('user-reports/buy-comment-package/cancel', [ReportsController::class, 'buyCommentCancel'])->name('user.buycomments.cancel');
 });
 
 
