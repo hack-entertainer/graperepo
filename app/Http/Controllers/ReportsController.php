@@ -417,12 +417,30 @@ class ReportsController extends Controller
 
 		Stripe::setApiKey(config('services.stripe.secret'));
 
+		// $checkout_session = Session::create([
+		// 	'payment_method_types' => ['card'],
+		// 	'line_items' => [[
+		// 		'price_data' => [
+		// 			'currency'     => 'usd',
+		// 			'unit_amount'  => 5077, // $50.77
+		// 			'product_data' => [
+		// 				'name' => 'Subject Response - Report #' . $report->report_number,
+		// 			],
+		// 		],
+		// 		'quantity' => 1,
+		// 	]],
+		// 	'mode'        => 'payment',
+		// 	'success_url' => route('user.subject-responses.success'),
+		// 	'cancel_url'  => route('user.subject-responses.cancel'),
+		// ]);
+
+		// return redirect($checkout_session->url);
 		$checkout_session = Session::create([
 			'payment_method_types' => ['card'],
 			'line_items' => [[
 				'price_data' => [
 					'currency'     => 'usd',
-					'unit_amount'  => 5077, // $50.77
+					'unit_amount'  => 5077,
 					'product_data' => [
 						'name' => 'Subject Response - Report #' . $report->report_number,
 					],
@@ -430,9 +448,16 @@ class ReportsController extends Controller
 				'quantity' => 1,
 			]],
 			'mode'        => 'payment',
-			'success_url' => route('user.subject-responses.success'),
-			'cancel_url'  => route('user.subject-responses.cancel'),
+			'success_url' => route('dome'),   // 👈 test redirect
+			'cancel_url'  => route('dome'),
 		]);
+
+		// ✅ Debug here
+		// dd([
+		// 	'success_url' => $checkout_session->success_url,
+		// 	'cancel_url'  => $checkout_session->cancel_url,
+		// 	'full_session' => $checkout_session,
+		// ]);
 
 		return redirect($checkout_session->url);
 	}
@@ -576,21 +601,38 @@ class ReportsController extends Controller
 
 		Stripe::setApiKey(config('services.stripe.secret'));
 
+		// $checkout_session = Session::create([
+		// 	'payment_method_types' => ['card'],
+		// 	'line_items' => [[
+		// 		'price_data' => [
+		// 			'currency' => 'usd',
+		// 			'unit_amount' => 5077, // $50.77
+		// 			'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
+		// 		],
+		// 		'quantity' => 1,
+		// 	]],
+		// 	'mode' => 'payment',
+		// 	// 'success_url' => route('user.reporter-reply.success'),
+		// 	'success_url' => route('home'),
+		// 	'cancel_url' => route('user.reporter-reply.cancel'),
+		// ]);
 		$checkout_session = Session::create([
 			'payment_method_types' => ['card'],
 			'line_items' => [[
 				'price_data' => [
-					'currency' => 'usd',
-					'unit_amount' => 5077, // $50.77
-					'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
+					'currency'     => 'usd',
+					'unit_amount'  => 5077,
+					'product_data' => [
+						'name' => 'Subject Response - Report #' . $report->report_number,
+					],
 				],
 				'quantity' => 1,
 			]],
-			'mode' => 'payment',
-			// 'success_url' => route('user.reporter-reply.success'),
-			'success_url' => route('home'),
-			'cancel_url' => route('user.reporter-reply.cancel'),
+			'mode'        => 'payment',
+			'success_url' => route('dome'),   // ✅ redirect success → /dome
+			'cancel_url'  => route('dome'),   // ✅ redirect cancel → /dome
 		]);
+
 
 		return redirect($checkout_session->url);
 	}
