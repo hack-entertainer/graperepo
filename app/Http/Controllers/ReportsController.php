@@ -417,24 +417,6 @@ class ReportsController extends Controller
 
 		Stripe::setApiKey(config('services.stripe.secret'));
 
-		// $checkout_session = Session::create([
-		// 	'payment_method_types' => ['card'],
-		// 	'line_items' => [[
-		// 		'price_data' => [
-		// 			'currency'     => 'usd',
-		// 			'unit_amount'  => 5077, // $50.77
-		// 			'product_data' => [
-		// 				'name' => 'Subject Response - Report #' . $report->report_number,
-		// 			],
-		// 		],
-		// 		'quantity' => 1,
-		// 	]],
-		// 	'mode'        => 'payment',
-		// 	'success_url' => route('user.subject-responses.success'),
-		// 	'cancel_url'  => route('user.subject-responses.cancel'),
-		// ]);
-
-		// return redirect($checkout_session->url);
 		$checkout_session = Session::create([
 			'payment_method_types' => ['card'],
 			'line_items' => [[
@@ -451,14 +433,6 @@ class ReportsController extends Controller
 			'success_url' => route('user.subject-responses.success', ['report_number' => $report->report_number]),
 			'cancel_url'  => route('user.subject-responses.cancel', ['report_number' => $report->report_number]),
 		]);
-
-
-		// ✅ Debug here
-		// dd([
-		// 	'success_url' => $checkout_session->success_url,
-		// 	'cancel_url'  => $checkout_session->cancel_url,
-		// 	'full_session' => $checkout_session,
-		// ]);
 
 		return redirect($checkout_session->url);
 	}
@@ -515,82 +489,6 @@ class ReportsController extends Controller
 			->with('error', 'Payment was cancelled or failed. Please try again.');
 	}
 
-
-
-	// public function subjectResponsesSuccess()
-	// {
-	// 	dd('method: ReportsController.php:subjectResponsesSuccess');
-	// 	dd(session('subject_response_data'));
-
-	// 	$data = session('subject_response_data');
-
-
-
-	// 	if (!$data) {
-	// 		return redirect()->route('reports.index')
-	// 			->with('error', 'No response data found. Please try again.');
-	// 	}
-
-	// 	// Insert clean data into DB
-	// 	ReportResponse::create([
-	// 		'user_id'       => $data['user_id'],
-	// 		'report_id'     => $data['report_id'],
-	// 		'content'       => $data['content'],
-	// 		'file_path'     => $data['file_path'],
-	// 		'is_paid'       => true,
-	// 		'payment_status' => 'paid',
-	// 		'paid_at'       => now(),
-	// 	]);
-
-	// 	$report_number = $data['report_number'];
-
-	// 	session()->forget('subject_response_data');
-
-	// 	return redirect()
-	// 		->route('report-detail', $report_number) // check your actual route name here
-	// 		->with('success', 'Your response was posted successfully!');
-	// }
-
-	// public function subjectResponsesCancel()
-	// {
-	// 	$data = session('subject_response_data');
-	// 	$report_number = $data['report_number'] ?? null;
-
-	// 	session()->forget('subject_response_data');
-
-	// 	if ($report_number) {
-	// 		return redirect()->route('report-detail', $report_number)
-	// 			->with('error', 'Payment was cancelled or failed. Please try again.');
-	// 	}
-
-	// 	return redirect()->route('reports.index')
-	// 		->with('error', 'Payment was cancelled. Please try again.');
-	// }
-
-	// public function subjectResponsesSuccess()
-	// {
-	//     $data = session('subject_response_data');
-	//     $data['is_paid'] = true;
-	//     $data['payment_status'] = 'paid';
-	//     $data['paid_at'] = now();
-
-	//     ReportResponse::create($data);
-	//     // echo "<pre/>";print_r($data);die;
-	//     $report_number = $data['report_number'];
-	//     session()->forget('subject_response_data');
-
-	//     return redirect()->route('report-detail', $report_number)->with('success', 'Your response was posted successfully!');
-	// }
-
-	// public function subjectResponsesCancel()
-	// {
-	//     session()->forget('subject_response_data');
-	//     return redirect()->back()->with('error', 'Payment was cancelled or failed. Please try again.');
-	// }
-
-
-
-
 	/**
 	 * Reporter Reply Modal
 	 *
@@ -638,22 +536,6 @@ class ReportsController extends Controller
 		]]);
 
 		Stripe::setApiKey(config('services.stripe.secret'));
-
-		// $checkout_session = Session::create([
-		// 	'payment_method_types' => ['card'],
-		// 	'line_items' => [[
-		// 		'price_data' => [
-		// 			'currency' => 'usd',
-		// 			'unit_amount' => 5077, // $50.77
-		// 			'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
-		// 		],
-		// 		'quantity' => 1,
-		// 	]],
-		// 	'mode' => 'payment',
-		// 	// 'success_url' => route('user.reporter-reply.success'),
-		// 	'success_url' => route('home'),
-		// 	'cancel_url' => route('user.reporter-reply.cancel'),
-		// ]);
 		$checkout_session = Session::create([
 			'payment_method_types' => ['card'],
 			'line_items' => [[
