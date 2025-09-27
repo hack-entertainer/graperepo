@@ -440,7 +440,7 @@ class ReportsController extends Controller
 			'line_items' => [[
 				'price_data' => [
 					'currency'     => 'usd',
-					'unit_amount'  => 5077,
+					'unit_amount'  => 5077, // $50.77
 					'product_data' => [
 						'name' => 'Subject Response - Report #' . $report->report_number,
 					],
@@ -448,9 +448,10 @@ class ReportsController extends Controller
 				'quantity' => 1,
 			]],
 			'mode'        => 'payment',
-			'success_url' => route('dome'),   // 👈 test redirect
-			'cancel_url'  => route('dome'),
+			'success_url' => route('user.subject-responses.success', ['report_number' => $report->report_number]),
+			'cancel_url'  => route('user.subject-responses.cancel', ['report_number' => $report->report_number]),
 		]);
+
 
 		// ✅ Debug here
 		// dd([
@@ -478,56 +479,93 @@ class ReportsController extends Controller
 	}
 
 
-
-	public function subjectResponsesSuccess()
+	public function subjectResponsesSuccess($report_number)
 	{
-		dd('method: ReportsController.php:subjectResponsesSuccess');
-		dd(session('subject_response_data'));
-
 		$data = session('subject_response_data');
 
-
-
-		if (!$data) {
-			return redirect()->route('reports.index')
+		if (!$data || $data['report_number'] !== $report_number) {
+			return redirect()->route('report-detail', $report_number)
 				->with('error', 'No response data found. Please try again.');
 		}
 
-		// Insert clean data into DB
+		// ✅ Persist defendant’s answer
 		ReportResponse::create([
-			'user_id'       => $data['user_id'],
-			'report_id'     => $data['report_id'],
-			'content'       => $data['content'],
-			'file_path'     => $data['file_path'],
-			'is_paid'       => true,
+			'user_id'        => $data['user_id'],
+			'report_id'      => $data['report_id'],
+			'report_number'  => $data['report_number'],
+			'user_fullname'  => $data['user_fullname'],
+			'content'        => $data['content'],
+			'file_path'      => $data['file_path'],
+			'is_paid'        => true,
 			'payment_status' => 'paid',
-			'paid_at'       => now(),
 		]);
 
-		$report_number = $data['report_number'];
-
+		// Clear session data after saving
 		session()->forget('subject_response_data');
 
-		return redirect()
-			->route('report-detail', $report_number) // check your actual route name here
-			->with('success', 'Your response was posted successfully!');
+		return redirect()->route('report-detail', $report_number)
+			->with('success', 'Your response has been submitted successfully.');
 	}
 
-	public function subjectResponsesCancel()
+	public function subjectResponsesCancel($report_number)
 	{
-		$data = session('subject_response_data');
-		$report_number = $data['report_number'] ?? null;
-
 		session()->forget('subject_response_data');
 
-		if ($report_number) {
-			return redirect()->route('report-detail', $report_number)
-				->with('error', 'Payment was cancelled or failed. Please try again.');
-		}
-
-		return redirect()->route('reports.index')
-			->with('error', 'Payment was cancelled. Please try again.');
+		return redirect()->route('report-detail', $report_number)
+			->with('error', 'Payment was cancelled or failed. Please try again.');
 	}
+
+
+
+	// public function subjectResponsesSuccess()
+	// {
+	// 	dd('method: ReportsController.php:subjectResponsesSuccess');
+	// 	dd(session('subject_response_data'));
+
+	// 	$data = session('subject_response_data');
+
+
+
+	// 	if (!$data) {
+	// 		return redirect()->route('reports.index')
+	// 			->with('error', 'No response data found. Please try again.');
+	// 	}
+
+	// 	// Insert clean data into DB
+	// 	ReportResponse::create([
+	// 		'user_id'       => $data['user_id'],
+	// 		'report_id'     => $data['report_id'],
+	// 		'content'       => $data['content'],
+	// 		'file_path'     => $data['file_path'],
+	// 		'is_paid'       => true,
+	// 		'payment_status' => 'paid',
+	// 		'paid_at'       => now(),
+	// 	]);
+
+	// 	$report_number = $data['report_number'];
+
+	// 	session()->forget('subject_response_data');
+
+	// 	return redirect()
+	// 		->route('report-detail', $report_number) // check your actual route name here
+	// 		->with('success', 'Your response was posted successfully!');
+	// }
+
+	// public function subjectResponsesCancel()
+	// {
+	// 	$data = session('subject_response_data');
+	// 	$report_number = $data['report_number'] ?? null;
+
+	// 	session()->forget('subject_response_data');
+
+	// 	if ($report_number) {
+	// 		return redirect()->route('report-detail', $report_number)
+	// 			->with('error', 'Payment was cancelled or failed. Please try again.');
+	// 	}
+
+	// 	return redirect()->route('reports.index')
+	// 		->with('error', 'Payment was cancelled. Please try again.');
+	// }
 
 	// public function subjectResponsesSuccess()
 	// {

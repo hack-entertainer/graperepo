@@ -190,18 +190,55 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
 	Route::get('user-reports/success', [ReportsController::class, 'success'])->name('user.report.success');
 	Route::get('user-reports/cancel', [ReportsController::class, 'cancel'])->name('user.report.cancel');
 
+
+
+
+
+
 	// Subject Responses
-	Route::get('user-reports/subject-responses/{report_number}', [ReportsController::class, 'showSubjectResponseForm'])
-		->name('user.subject-responses.form');
-	Route::post('user-reports/subject-responses/{report_number}', [ReportsController::class, 'subjectResponses'])
+	// Route::get('user-reports/subject-responses/{report_number}', [ReportsController::class, 'showSubjectResponseForm'])
+	// 	->name('user.subject-responses.form');
+	// Route::post('user-reports/subject-responses/{report_number}', [ReportsController::class, 'subjectResponses'])
+	// 	->name('user.subject-responses.submit');
+	// // Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
+	// //     ->name('user.subject-responses.success');
+	// Route::get('user-reports/subject-responses/success', [ReportsController::class, 'dome'])
+	// 	->name('user.subject-responses.success');
+
+	// Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])
+	// 	->name('user.subject-responses.cancel');
+	// Success with report_number
+
+	// Defendant Flow: Subject Responses
+	Route::post(
+		'user-reports/subject-responses/{report_number}',
+		[ReportsController::class, 'subjectResponses']
+	)
 		->name('user.subject-responses.submit');
-	// Route::get('user-reports/subject-responses/success', [ReportsController::class, 'subjectResponsesSuccess'])
-	//     ->name('user.subject-responses.success');
-	Route::get('user-reports/subject-responses/success', [ReportsController::class, 'debugSuccess'])
+
+	Route::get(
+		'user-reports/subject-responses/success/{report_number}',
+		[ReportsController::class, 'subjectResponsesSuccess']
+	)
 		->name('user.subject-responses.success');
 
-	Route::get('user-reports/subject-responses/cancel', [ReportsController::class, 'subjectResponsesCancel'])
+	Route::get(
+		'user-reports/subject-responses/cancel/{report_number}',
+		[ReportsController::class, 'subjectResponsesCancel']
+	)
 		->name('user.subject-responses.cancel');
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
