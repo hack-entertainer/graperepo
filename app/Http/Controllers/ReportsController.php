@@ -379,10 +379,16 @@ class ReportsController extends Controller
 	{
 		// dd($report_number, $report = Reports::where('report_number', $report_number)->first());
 
+		// $request->validate([
+		// 	'response_text' => 'required', // ✅ match blade input
+		// 	'response_file' => 'nullable|file|max:10240', // 10MB max
+		// ]);
 		$request->validate([
-			'response_text' => 'required', // ✅ match blade input
-			'response_file' => 'nullable|file|max:10240', // 10MB max
+			'response_text' => 'required',
+			'response_file' => 'nullable|file|max:10240',
+			'confirmation'  => 'accepted', // ✅ new validation
 		]);
+
 
 		$filePath = null;
 

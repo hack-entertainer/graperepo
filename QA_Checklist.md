@@ -49,7 +49,7 @@
 ## Answers (Defendant Flow)
 - [ ] **Answer Submission Form**  
   - Expected: Defendant can file Answer linked to Report. Large text box required.  
-  - Status: ❌  
+  - Status: ✅  
   - Route: `/answer/create/{report}`  
   - Notes: Must support multiple defenses, counterclaims.
 
@@ -59,7 +59,7 @@
 
 - [ ] **Answer Post-Submission Navigation**  
   - Expected: Option to (1) Post another Answer, or (2) Return to DB/Search.  
-  - Status: ❌  
+  - Status: ✅  
 
 ---
 

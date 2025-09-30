@@ -150,10 +150,28 @@
 									<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 								</div>
 								<div class="modal-body">
-									<textarea name="response_text" class="form-control mb-3" rows="4" placeholder="Write your response..." required></textarea>
+									<textarea name="response_text"
+										class="form-control mb-3"
+										rows="4"
+										placeholder="Write your response..."
+										required></textarea>
 
 									<label for="response_file" class="form-label"><strong>Upload Evidence File (optional)</strong></label>
-									<input type="file" name="response_file" class="form-control mt-3">
+									<input type="file" name="response_file" class="form-control mb-3">
+
+									<div class="form-check mt-3">
+										<input type="checkbox"
+											class="form-check-input @error('confirmation') is-invalid @enderror"
+											name="confirmation"
+											id="confirmation"
+											required>
+										<label class="form-check-label" for="confirmation">
+											I confirm that the above information is true and accurate.
+										</label>
+										@error('confirmation')
+										<div class="invalid-feedback">{{ $message }}</div>
+										@enderror
+									</div>
 								</div>
 								<div class="modal-footer">
 									<button type="submit" class="btn btn-primary">Submit & Pay ($49)</button>
@@ -162,6 +180,41 @@
 						</form>
 					</div>
 				</div>
+				<!-- <div class="modal fade" id="subjectResponsesModal" tabindex="-1" aria-hidden="true">
+					<div class="modal-dialog">
+						<form method="POST" action="{{ route('user.subject-responses.submit', $report->report_number) }}" enctype="multipart/form-data">
+							@csrf
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title">Post Your Response</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+								</div>
+								<div class="modal-body">
+									<textarea name="response_text" class="form-control mb-3" rows="4" placeholder="Write your response..." required></textarea>
+
+									<label for="response_file" class="form-label"><strong>Upload Evidence File (optional)</strong></label>
+									<input type="file" name="response_file" class="form-control mt-3">
+								</div>
+								<div class="form-check mb-3">
+									<input type="checkbox"
+										class="form-check-input @error('confirmation') is-invalid @enderror"
+										name="confirmation"
+										id="confirmation"
+										required>
+									<label class="form-check-label" for="confirmation">
+										I confirm that the above information is true and accurate.
+									</label>
+									@error('confirmation')
+									<div class="invalid-feedback">{{ $message }}</div>
+									@enderror
+								</div>
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-primary">Submit & Pay ($49)</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div> -->
 
 				<!-- Reporter Reply Modal -->
 				<div class="modal fade" id="reporterReplyModal" tabindex="-1" aria-hidden="true">
