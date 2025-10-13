@@ -6,7 +6,7 @@
     1. Post a New Report  
     2. Answer an Existing Report  
     3. Post a Comment  
-  - Status: ❌  
+  - Status: ✅  
   - Route: `/register` → Redirect choice page  
   - Notes: Landing & registration bottom links must reflect 3 choices. 
 
@@ -55,7 +55,7 @@
 
 - [ ] **Answer Acknowledgment Checkbox**  
   - Expected: User confirms authorship + truth.  
-  - Status: ❌  
+  - Status: ✅  
 
 - [ ] **Answer Post-Submission Navigation**  
   - Expected: Option to (1) Post another Answer, or (2) Return to DB/Search.  
