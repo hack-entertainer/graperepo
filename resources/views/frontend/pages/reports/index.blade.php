@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title', 'List reports || PRODUCT PAGE')
+@section('title','List reports || PRODUCT PAGE')
 
 @section('main-content')
 <!-- Breadcrumbs -->
@@ -19,12 +19,9 @@
 	</div>
 </div>
 <!-- End Breadcrumbs -->
-
 <section class="shop single section">
 	<div class="container" data-aos="fade-up">
 		<h3 class="mb-4">📋 List reports</h3>
-
-		<!-- Search Bar -->
 		<div class="mb-4">
 			<form class="row g-3" method="GET" action="{{ route('list-reports') }}">
 				<div class="col-md-4">
@@ -39,23 +36,132 @@
 						<option value="Sexual Harassment" {{ request('type_event') == 'Sexual Harassment' ? 'selected' : '' }}>Sexual Harassment</option>
 					</select>
 				</div>
+
 				<div class="col-md-2 d-grid">
 					<button type="submit" class="btn btn-primary">Search</button>
 				</div>
 			</form>
 		</div>
 
-		<!-- Desktop Table (Modularized) -->
-		<div class="hidden md:block">
-			@include('frontend.pages.reports.components.table', ['reports' => $reports, 'answers' => $answers, 'comments' => $comments])
+		<div class="table-responsive">
+			@if(($reports && $reports->count()) || ($answers && $answers->count()) || ($comments && $comments->count()))
+			<table class="table table-striped table-bordered align-middle text-center table-hover">
+				<thead class="table-dark">
+					<tr>
+						<th>Report #</th>
+						<th>Reporter</th>
+						<th>Subject</th>
+						<th>Type</th>
+						<th>Location</th>
+						<th>Date Event</th>
+						<th>Date of Report</th>
+						<th>Video</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach($reports as $report)
+					<tr>
+						<td><a href="{{route('report-detail',$report->report_number)}}" style="color: #007bff;" title="View details">{{$report->report_number}}</a></td>
+						<td><strong>{{$report->reporter_name}}</strong></td>
+						<td>{{$report->subject_fullname}}</td>
+
+						<td>{{$report->type_event}}</td>
+						<td>{{$report->event_location}}</td>
+						<td>{{$report->event_date}}</td>
+						<td>{{$report->created_at}}</td>
+						<td>
+							@if($report->video_link)
+							<a href="{{$report->video_link}}" target="_blank" style="color:#007bff" title="View video">
+								<i class="fa fa-video-camera" aria-hidden="true"></i>
+							</a>
+							@else
+							--
+							@endif
+						</td>
+						<td><a href="{{route('report-detail',$report->report_number)}}" class="btn btn-primary btn-sm" title="View details"> Detail</a></td>
+					</tr>
+					@endforeach
+					{{-- Existing Reports loop --}}
+
+					@if(request()->filled('q')
+					&& (!$reports || !$reports->count())
+					&& (!$answers || !$answers->count())
+					&& (!$comments || !$comments->count()))
+					<p>No results found.</p>
+					@endif
+
+				</tbody>
+
+			</table>
+
+			{{-- New: Answers --}}
+			@if(isset($answers) && $answers->count())
+			<h3 class="mt-5">📝 Answers</h3>
+			@foreach($answers as $answer)
+			<div class="card mb-3">
+				<div class="card-body">
+					<p>{{ Str::limit($answer->content, 200) }}</p>
+					<small>
+						By {{ $answer->user_fullname }}
+						in <a href="{{ route('report-detail',$answer->report->report_number) }}">
+							Report #{{ $answer->report->report_number }}
+						</a>
+					</small>
+				</div>
+			</div>
+			@endforeach
+			{{ $answers->withQueryString()->links() }}
+			@endif
+
+
+			{{-- Comments --}}
+			@if(isset($comments) && $comments->count())
+			<h3 class="mt-5">💬 Comments</h3>
+			@foreach($comments as $comment)
+			<div class="card mb-3">
+				<div class="card-body">
+					<p>{{ Str::limit($comment->content, 200) }}</p>
+					<small>
+						By {{ $comment->user_fullname }}
+						in <a href="{{ route('report-detail',$comment->report->report_number) }}">
+							Report #{{ $comment->report->report_number }}
+						</a>
+					</small>
+				</div>
+			</div>
+			@endforeach
+			{{ $comments->withQueryString()->links() }}
+			@endif
+
+			@else
+			<h6 class="text-center">No report found!!! </h6>
+			@endif
+
 		</div>
 
-		<!-- Mobile Cards Placeholder -->
-		<div class="block md:hidden">
-			<p class="text-gray-500 text-sm italic mb-2">Mobile view coming soon...</p>
-			<!-- Eventually replace this with: -->
-			{{-- @include('frontend.pages.reports.components.cards', ['reports' => $reports]) --}}
-		</div>
+		<!-- <div class="d-flex justify-content-center mt-4">
+              {{ $reports->withQueryString()->links() }}
+          </div> -->
 	</div>
 </section>
 @endsection
+@push('styles')
+<style>
+	.pagination {
+		display: inline-flex;
+	}
+
+	.filter_button {
+		/* height:20px; */
+		text-align: center;
+		background: #F7941D;
+		padding: 8px 16px;
+		margin-top: 10px;
+		color: white;
+	}
+</style>
+@endpush
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+@endpush
