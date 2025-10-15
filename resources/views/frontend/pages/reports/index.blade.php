@@ -53,7 +53,7 @@
 
 			<!-- Mobile Cards -->
 			<div class="d-block d-md-none" id="booga">
-				<!-- @include('frontend.pages.reports.components.table') -->
+				@include('frontend.pages.reports.components.cards')
 			</div>
 
 
