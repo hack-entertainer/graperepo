@@ -45,7 +45,18 @@
 
 		<div class="table-responsive">
 			@if(($reports && $reports->count()) || ($answers && $answers->count()) || ($comments && $comments->count()))
-			@include('frontend.pages.reports.components.table')
+
+			<!-- Desktop Table -->
+			<div class="d-none d-md-block" id="ooga">
+				@include('frontend.pages.reports.components.table')
+			</div>
+
+			<!-- Mobile Cards -->
+			<div class="d-block d-md-none" id="booga">
+				<!-- @include('frontend.pages.reports.components.table') -->
+			</div>
+
+
 
 			{{-- New: Answers --}}
 			@if(isset($answers) && $answers->count())
