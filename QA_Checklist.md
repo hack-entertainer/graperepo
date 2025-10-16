@@ -114,7 +114,7 @@
 
 - [ ] **Responsive Layout**  
   - Expected: Mobile, tablet, and desktop support (Tailwind breakpoints).  
-  - Status: ❌  
+  - Status: ✅  
 
 ---
 
@@ -136,4 +136,8 @@
   - Route: `/admin/dashboard`  
   - Notes: Minor UI polish (pagination Safari issue).
 
-# forcing railway build <delete>
+---
+
+## Robust Identity Verification
+- [ ] **review client communications**  
+- [ ] **generate AI checklist**  
