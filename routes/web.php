@@ -6,7 +6,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MessageController;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductReviewController;
@@ -61,20 +60,11 @@ Route::post('/product/search', [FrontendController::class, 'productSearch'])->na
 Route::get('/product-cat/{slug}', [FrontendController::class, 'productCat'])->name('product-cat');
 Route::get('/product-sub-cat/{slug}/{sub_slug}', [FrontendController::class, 'productSubCat'])->name('product-sub-cat');
 
-// Cart section
-Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart')->middleware('user');
-Route::post('/add-to-cart', [CartController::class, 'singleAddToCart'])->name('single-add-to-cart')->middleware('user');
-Route::get('cart-delete/{id}', [CartController::class, 'cartDelete'])->name('cart-delete');
-Route::post('cart-update', [CartController::class, 'cartUpdate'])->name('cart.update');
-
-Route::get('/cart', fn() => view('frontend.pages.cart'))->name('cart');
-Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout')->middleware('user');
 
 // Wishlist
 Route::get('/wishlist', fn() => view('frontend.pages.wishlist'))->name('wishlist');
 Route::get('/wishlist/{slug}', [WishlistController::class, 'wishlist'])->name('add-to-wishlist')->middleware('user');
 Route::get('wishlist-delete/{id}', [WishlistController::class, 'wishlistDelete'])->name('wishlist-delete');
-Route::post('cart/order', [OrderController::class, 'store'])->name('cart.order');
 Route::get('order/pdf/{id}', [OrderController::class, 'pdf'])->name('order.pdf');
 Route::get('/income', [OrderController::class, 'incomeChart'])->name('product.order.income');
 
