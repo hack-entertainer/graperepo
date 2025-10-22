@@ -60,7 +60,6 @@ Route::get('product-detail/{slug}', [FrontendController::class, 'productDetail']
 Route::post('/product/search', [FrontendController::class, 'productSearch'])->name('product.search');
 Route::get('/product-cat/{slug}', [FrontendController::class, 'productCat'])->name('product-cat');
 Route::get('/product-sub-cat/{slug}/{sub_slug}', [FrontendController::class, 'productSubCat'])->name('product-sub-cat');
-Route::get('/product-brand/{slug}', [FrontendController::class, 'productBrand'])->name('product-brand');
 
 // Cart section
 Route::get('/add-to-cart/{slug}', [CartController::class, 'addToCart'])->name('add-to-cart')->middleware('user');
@@ -126,7 +125,6 @@ Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function
 	Route::get('/', [AdminController::class, 'index'])->name('admin');
 	Route::get('/file-manager', fn() => view('backend.layouts.file-manager'))->name('file-manager');
 	Route::resource('users', 'UsersController');
-	Route::resource('brand', 'BrandController');
 	Route::get('/profile', [AdminController::class, 'profile'])->name('admin-profile');
 	Route::post('/profile/{id}', [AdminController::class, 'profileUpdate'])->name('profile-update');
 	Route::resource('/category', 'CategoryController');
