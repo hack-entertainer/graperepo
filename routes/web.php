@@ -12,7 +12,6 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\PostCommentController;
 use App\Http\Controllers\CouponController;
-// use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HomeController;
 use UniSharp\LaravelFilemanager\Lfm;
@@ -127,7 +126,6 @@ Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function
 	Route::get('/', [AdminController::class, 'index'])->name('admin');
 	Route::get('/file-manager', fn() => view('backend.layouts.file-manager'))->name('file-manager');
 	Route::resource('users', 'UsersController');
-	Route::resource('banner', 'BannerController');
 	Route::resource('brand', 'BrandController');
 	Route::get('/profile', [AdminController::class, 'profile'])->name('admin-profile');
 	Route::post('/profile/{id}', [AdminController::class, 'profileUpdate'])->name('profile-update');
