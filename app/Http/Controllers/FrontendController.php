@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Category;
 use App\Models\PostTag;
 use App\Models\PostCategory;
 use App\Models\Post;
-use App\Models\Cart;
 use App\Models\Brand;
 use App\User;
 use Auth;
@@ -33,13 +31,10 @@ class FrontendController extends Controller
 		$featured = Product::where('status', 'active')->where('is_featured', 1)->orderBy('price', 'DESC')->limit(2)->get();
 		$posts = Post::where('status', 'active')->orderBy('id', 'DESC')->limit(3)->get();
 		$products = Product::where('status', 'active')->orderBy('id', 'DESC')->limit(8)->get();
-		$category = Category::where('status', 'active')->where('is_parent', 1)->orderBy('title', 'ASC')->get();
-		// return $category;
 		return view('frontend.index')
 			->with('featured', $featured)
 			->with('posts', $posts)
 			->with('product_lists', $products)
-			->with('category_lists', $category);
 	}
 
 	public function dome()

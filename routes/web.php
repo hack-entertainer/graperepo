@@ -81,7 +81,6 @@ Route::get('/blog', [FrontendController::class, 'blog'])->name('blog');
 Route::get('/blog-detail/{slug}', [FrontendController::class, 'blogDetail'])->name('blog.detail');
 Route::get('/blog/search', [FrontendController::class, 'blogSearch'])->name('blog.search');
 Route::post('/blog/filter', [FrontendController::class, 'blogFilter'])->name('blog.filter');
-Route::get('blog-cat/{slug}', [FrontendController::class, 'blogByCategory'])->name('blog.category');
 Route::get('blog-tag/{slug}', [FrontendController::class, 'blogByTag'])->name('blog.tag');
 
 // NewsLetter
@@ -117,9 +116,7 @@ Route::group(['prefix' => '/admin', 'middleware' => ['auth', 'admin']], function
 	Route::resource('users', 'UsersController');
 	Route::get('/profile', [AdminController::class, 'profile'])->name('admin-profile');
 	Route::post('/profile/{id}', [AdminController::class, 'profileUpdate'])->name('profile-update');
-	Route::resource('/category', 'CategoryController');
 	Route::resource('/product', 'ProductController');
-	Route::post('/category/{id}/child', 'CategoryController@getChildByParent');
 	Route::resource('/post-category', 'PostCategoryController');
 	Route::resource('/post-tag', 'PostTagController');
 	Route::resource('/post', 'PostController');
