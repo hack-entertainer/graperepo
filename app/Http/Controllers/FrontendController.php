@@ -34,7 +34,7 @@ class FrontendController extends Controller
 		return view('frontend.index')
 			->with('featured', $featured)
 			->with('posts', $posts)
-			->with('product_lists', $products)
+			->with('product_lists', $products);
 	}
 
 	public function dome()
