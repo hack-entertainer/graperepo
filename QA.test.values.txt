@@ -1,3 +1,5 @@
+local mysql root password: RootPass#2025
+
 test users:
 
 jabba@jabbba.net

@@ -72,8 +72,6 @@
 									<div class="nav-inner">
 										<ul class="nav main-menu menu navbar-nav">
 											<li class="{{Request::path()=='home' ? 'active' : ''}}"><a href="{{route('home')}}">Home</a></li>
-											<!-- <li class="{{Request::path()=='about-us' ? 'active' : ''}}"><a href="{{route('about-us')}}">About Us</a></li> -->
-											<li class=""><a href="{{route('list-reports')}}">List reports</a><span class="new">New</span></li>
 											<li class="{{Request::path()=='post-rules' ? 'active' : ''}}"><a href="{{route('post-rules')}}">Post Rules and more detail</a></li>
 										</ul>
 									</div>
