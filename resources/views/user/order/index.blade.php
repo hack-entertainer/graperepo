@@ -104,7 +104,7 @@
 <script src="{{asset('backend/js/demo/datatables-demo.js')}}"></script>
 <script>
 	$('#order-dataTable').DataTable({
-
+		"pagingType": "numbers",
 		"columnDefs": [{
 			"orderable": false,
 			"targets": [8]
