@@ -14,6 +14,24 @@
 
 	<!-- Custom styles for this template-->
 	<link href="{{asset('backend/css/sb-admin-2.min.css')}}" rel="stylesheet">
+
+
+	<style>
+		/* Remove "Previous" and "Next" buttons from Laravel Tailwind pagination */
+		nav[role="navigation"] span[aria-label*="Previous"],
+		nav[role="navigation"] a[aria-label*="Previous"],
+		nav[role="navigation"] span[aria-label*="Next"],
+		nav[role="navigation"] a[aria-label*="Next"] {
+			display: none !important;
+		}
+
+		/* Optional: center the numeric pagination */
+		nav[role="navigation"]>div:first-child {
+			justify-content: center !important;
+		}
+	</style>
+
+
 	@stack('styles')
 
 </head>
