@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\ProductReview;
 use App\Models\PostComment;
 use App\Rules\MatchOldPassword;
+use Illuminate\Support\Facades\Auth;
+
 use Hash;
 
 class HomeController extends Controller
@@ -43,17 +45,39 @@ class HomeController extends Controller
 
 	public function profileUpdate(Request $request, $id)
 	{
-		// return $request->all();
 		$user = User::findOrFail($id);
-		$data = $request->all();
-		$status = $user->fill($data)->save();
-		if ($status) {
-			request()->session()->flash('success', 'Successfully updated your profile');
-		} else {
-			request()->session()->flash('error', 'Please try again!');
+
+		// Prevent users from editing anyone else's profile
+		if (Auth::id() !== $user->id && Auth::user()->role !== 'admin') {
+			abort(403, 'Unauthorized action.');
 		}
+
+		// Validate only the fields regular users can change
+		$validated = $request->validate([
+			'name'  => 'required|string|max:50',
+			'photo' => 'nullable|string',
+			'password' => 'nullable|string|min:8|confirmed', // optional password change
+		]);
+		
+		// Only update safe attributes
+		$updateData = collect($validated)->only(['name', 'photo'])->toArray();
+
+		// Handle password update if provided
+		if (!empty($validated['password'])) {
+			$updateData['password'] = bcrypt($validated['password']);
+		}
+
+		$status = $user->update($updateData);
+
+		if ($status) {
+			session()->flash('success', 'Profile updated successfully.');
+		} else {
+			session()->flash('error', 'Something went wrong. Please try again.');
+		}
+
 		return redirect()->back();
 	}
+
 
 	// Order
 	public function orderIndex()
