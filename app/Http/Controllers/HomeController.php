@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\ProductReview;
 use App\Models\PostComment;
 use App\Rules\MatchOldPassword;
+use App\Models\Reports;
 use Illuminate\Support\Facades\Auth;
 
 use Hash;
@@ -33,7 +34,8 @@ class HomeController extends Controller
 
 	public function index()
 	{
-		return view('user.index');
+		$reports = Reports::where('reporter_id', Auth::id())->latest()->paginate(10);
+		return view('user.index', compact('reports'));
 	}
 
 	public function profile()
@@ -58,7 +60,7 @@ class HomeController extends Controller
 			'photo' => 'nullable|string',
 			'password' => 'nullable|string|min:8|confirmed', // optional password change
 		]);
-		
+
 		// Only update safe attributes
 		$updateData = collect($validated)->only(['name', 'photo'])->toArray();
 

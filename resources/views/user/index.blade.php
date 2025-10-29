@@ -88,9 +88,7 @@
     <!-- Content Row -->
 
     <div class="row">
-      @php
-          $reports=DB::table('reports')->paginate(10);
-      @endphp
+     
       <!-- Order -->
       <div class="col-xl-12 col-lg-12">
         <table class="table table-bordered" id="order-dataTable" width="100%" cellspacing="0">
@@ -137,7 +135,7 @@
                   </tr>  
               @endforeach
               @else
-                <td colspan="8" class="text-center"><h4 class="my-4">You have no order yet!! Please order some products</h4></td>
+                <td colspan="8" class="text-center"><h4 class="my-4">No reports made. Please visit the homepage to post a report.</h4></td>
               @endif
           </tbody>
         </table>
