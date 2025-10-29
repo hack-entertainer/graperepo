@@ -30,8 +30,6 @@
 			justify-content: center !important;
 		}
 	</style>
-
-
 	@stack('styles')
 
 </head>
