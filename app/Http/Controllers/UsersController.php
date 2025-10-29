@@ -95,28 +95,29 @@ class UsersController extends Controller
 	public function update(Request $request, $id)
 	{
 		$user = User::findOrFail($id);
-		$this->validate(
-			$request,
-			[
-				'name' => 'string|required|max:30',
-				'email' => 'string|required',
-				'role' => 'required|in:admin,user',
-				'status' => 'required|in:active,inactive',
-				'photo' => 'nullable|string',
-			]
-		);
-		// dd($request->all());
-		$data = $request->all();
-		// dd($data);
 
-		$status = $user->fill($data)->save();
-		if ($status) {
-			request()->session()->flash('success', 'Successfully updated');
-		} else {
-			request()->session()->flash('error', 'Error occured while updating');
+		// Prevent users from editing anyone else
+		if (Auth::id() !== $user->id && Auth::user()->role !== 'admin') {
+			abort(403, 'Unauthorized action.');
 		}
-		return redirect()->route('users.index');
+
+		// Only admins can modify role or status
+		if (Auth::user()->role !== 'admin') {
+			$request->request->remove('role');
+			$request->request->remove('status');
+		}
+
+		$this->validate($request, [
+			'name'  => 'string|required|max:30',
+			'email' => 'string|required|email',
+			'photo' => 'nullable|string',
+		]);
+
+		$user->fill($request->only(['name', 'email', 'photo']))->save();
+
+		return redirect()->route('users.index')->with('success', 'Profile updated successfully.');
 	}
+
 
 	/**
 	 * Remove the specified resource from storage.
