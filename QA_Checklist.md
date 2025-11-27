@@ -141,4 +141,8 @@
 ## Robust Identity Verification
 - [ ] **review client communications**  
 - [ ] **generate AI checklist**  
+
+---
+
+## Misc. bugs
 - [ ] **users can see entire dashboard**  
