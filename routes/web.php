@@ -121,6 +121,45 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
 Route::get('list-reports', [ReportsController::class, 'index'])->name('list-reports');
 Route::get('report-detail/{report_number}', [ReportsController::class, 'detail'])->name('report-detail');
 
+
+use Cloudinary\Cloudinary;
+
+Route::get('/cloudinary-test', function () {
+
+	// Force direct configuration (bypassing Laravel/ENV)
+	$cloudinary = new Cloudinary([
+		'cloud' => [
+			'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+			'api_key'    => env('CLOUDINARY_API_KEY'),
+			'api_secret' => env('CLOUDINARY_API_SECRET'),
+		],
+		'url' => [
+			'secure' => true
+		]
+	]);
+
+	try {
+		// Upload a tiny file: /etc/hosts (all systems have it)
+		$response = $cloudinary->uploadApi()->upload('/etc/hosts', [
+			'folder' => 'test-route',
+			'resource_type' => 'raw'
+		]);
+
+
+		return [
+			'status' => 'success',
+			'public_id' => $response['public_id'] ?? null,
+			'secure_url' => $response['secure_url'] ?? null,
+		];
+	} catch (\Exception $e) {
+		return [
+			'status' => 'error',
+			'message' => $e->getMessage(),
+			'trace' => $e->getTraceAsString(),
+		];
+	}
+});
+
 // Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
 //     Lfm::routes();
 // });

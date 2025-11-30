@@ -112,38 +112,35 @@ class ReportsController extends Controller
 			'letter_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
 		]);
 
+		// Inject UploadService
+		$uploadService = app(\App\Services\UploadService::class);
+
 		$extraVideoFee = 0;
 		$extraLetterFee = 0;
-		$videoPath = null;
-		$letterPath = null;
+		$videoPublicId = null;
+		$letterPublicId = null;
 
+		// -------------------------
+		// VIDEO UPLOAD → CLOUDINARY
+		// -------------------------
 		if ($request->hasFile('video_file')) {
 			$video_file = $request->file('video_file');
 
-			$originalName = pathinfo($video_file->getClientOriginalName(), PATHINFO_FILENAME);
-			$extension = $video_file->getClientOriginalExtension();
+			// Upload to Cloudinary instead of storeAs()
+			$videoPublicId = $uploadService->upload($video_file, 'reports_video');
 
-			$safeName = Str::slug($originalName);
-			$timestamp = time();
-
-			$newFilename_video = $safeName . '_' . $timestamp . '.' . $extension;
-
-			$videoPath = $video_file->storeAs('reports_video', $newFilename_video, 'public');
 			$extraVideoFee = 29;
 		}
 
+		// -------------------------
+		// LETTER UPLOAD → CLOUDINARY
+		// -------------------------
 		if ($request->hasFile('letter_file')) {
 			$letter_file = $request->file('letter_file');
 
-			$originalName_letter = pathinfo($letter_file->getClientOriginalName(), PATHINFO_FILENAME);
-			$extension_letter = $letter_file->getClientOriginalExtension();
+			// Upload to Cloudinary instead of storeAs()
+			$letterPublicId = $uploadService->upload($letter_file, 'reports_letter');
 
-			$safeName_letter = Str::slug($originalName_letter);
-			$timestamp_letter = time();
-
-			$newFilename_letter = $safeName_letter . '_' . $timestamp_letter . '.' . $extension_letter;
-
-			$letterPath = $letter_file->storeAs('reports_letter', $newFilename_letter, 'public');
 			$extraLetterFee = 29;
 		}
 
@@ -151,15 +148,17 @@ class ReportsController extends Controller
 		$stripe_fee = round($totalAmount * 0.03 + 0.30, 2);
 		$total_price = round($totalAmount + $stripe_fee, 2);
 
-
 		unset($validated['video_file'], $validated['letter_file']);
-		$validated['video_path'] = $videoPath;
-		$validated['letter_path'] = $letterPath;
 
+		// Store new Cloudinary public IDs into the validated array
+		$validated['video_public_id'] = $videoPublicId;
+		$validated['letter_public_id'] = $letterPublicId;
+
+		// Session data for checkout success
 		session([
 			'report_data' => array_merge($validated, [
-				'video_path' => $videoPath,
-				'letter_path' => $letterPath,
+				'video_public_id' => $videoPublicId,
+				'letter_public_id' => $letterPublicId,
 				'extra_video_fee' => $extraVideoFee,
 				'extra_letter_fee' => $extraLetterFee,
 				'reporter_name' => auth()->user()->name,
@@ -167,7 +166,7 @@ class ReportsController extends Controller
 			])
 		]);
 
-		// Khởi tạo Stripe Checkout Session
+		// Stripe checkout
 		Stripe::setApiKey(config('services.stripe.secret'));
 
 		$session = Session::create([
@@ -198,39 +197,42 @@ class ReportsController extends Controller
 			return redirect()->route('user.add-report.form')->with('error', 'No data found. Please resubmit your report.');
 		}
 
-		// Lưu report
+		// Save the report using Cloudinary public IDs
 		Reports::create([
-			'reporter_id' => auth()->id(),
-			'reporter_name' => $data['reporter_name'],
+			'reporter_id'    => auth()->id(),
+			'reporter_name'  => $data['reporter_name'],
 			'reporter_email' => $data['reporter_email'],
 			'alternate_reporter_name' => $data['alternate_reporter_name'] ?? null,
 
 			'subject_fullname' => $data['subject_fullname'],
-			'subject_email' => $data['subject_email'],
-			'subject_phone' => $data['subject_phone'],
-			'subject_address' => $data['subject_address'],
-			'subject_city' => $data['subject_city'],
-			'subject_state' => $data['subject_state'],
-			'subject_zipcode' => $data['subject_zipcode'],
-			'subject_country' => $data['subject_country'],
+			'subject_email'    => $data['subject_email'],
+			'subject_phone'    => $data['subject_phone'],
+			'subject_address'  => $data['subject_address'],
+			'subject_city'     => $data['subject_city'],
+			'subject_state'    => $data['subject_state'],
+			'subject_zipcode'  => $data['subject_zipcode'],
+			'subject_country'  => $data['subject_country'],
 
-			'type_event' => $data['type_event'],
-			'event_date' => $data['event_date'],
-			'event_address' => $data['event_address'],
-			'event_city' => $data['event_city'],
-			'event_state' => $data['event_state'],
-			'event_zipcode' => $data['event_zipcode'],
-			'event_country' => $data['event_country'],
+			'type_event'      => $data['type_event'],
+			'event_date'      => $data['event_date'],
+			'event_address'   => $data['event_address'],
+			'event_city'      => $data['event_city'],
+			'event_state'     => $data['event_state'],
+			'event_zipcode'   => $data['event_zipcode'],
+			'event_country'   => $data['event_country'],
 
-			'description' => $data['description'],
-			'video_link' => $data['video_link'] ?? null,
-			'video_path' => $data['video_path'] ?? null,
-			'letter_path' => $data['letter_path'] ?? null,
+			'description'   => $data['description'],
+			'video_link'    => $data['video_link'] ?? null,
+
+			// <<<<<<<< THE CRITICAL CHANGES >>>>>>>>>
+			'video_public_id'  => $data['video_public_id'] ?? null,
+			'letter_public_id' => $data['letter_public_id'] ?? null,
+			// <<<<<<<< END CHANGES >>>>>>>>>
 
 			'report_number' => now()->format('Y') . '-RRDB-' . strtoupper(uniqid()),
-			'is_paid' => true,
+			'is_paid'       => true,
 			'payment_status' => 'paid',
-			'paid_at' => now(),
+			'paid_at'       => now(),
 		]);
 
 		session()->forget('report_data');
