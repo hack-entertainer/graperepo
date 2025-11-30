@@ -13,6 +13,13 @@ use Stripe\Checkout\Session;
 
 class ReportsController extends Controller
 {
+	protected $uploadService;
+
+	public function __construct(\App\Services\UploadService $uploadService)
+	{
+		$this->uploadService = $uploadService;
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -117,42 +124,46 @@ class ReportsController extends Controller
 
 		$extraVideoFee = 0;
 		$extraLetterFee = 0;
+
 		$videoPublicId = null;
+		$videoPublicUrl = null;
 		$letterPublicId = null;
+		$letterPublicUrl = null;
 
-		// -------------------------
-		// VIDEO UPLOAD → CLOUDINARY
-		// -------------------------
 		if ($request->hasFile('video_file')) {
-			$video_file = $request->file('video_file');
 
-			// Upload to Cloudinary instead of storeAs()
-			$videoPublicId = $uploadService->upload($video_file, 'reports_video');
+			$upload = $this->uploadService->upload(
+				$request->file('video_file'),
+				'reports/video'
+			);
+
+			$videoPublicId  = $upload['public_id'];
+			$videoPublicUrl = $upload['secure_url'];
 
 			$extraVideoFee = 29;
 		}
 
-		// -------------------------
-		// LETTER UPLOAD → CLOUDINARY
-		// -------------------------
 		if ($request->hasFile('letter_file')) {
-			$letter_file = $request->file('letter_file');
 
-			// Upload to Cloudinary instead of storeAs()
-			$letterPublicId = $uploadService->upload($letter_file, 'reports_letter');
+			$upload = $this->uploadService->upload(
+				$request->file('letter_file'),
+				'reports/letters'
+			);
+
+			$letterPublicId  = $upload['public_id'];
+			$letterPublicUrl = $upload['secure_url'];
 
 			$extraLetterFee = 29;
 		}
 
-		$totalAmount = 49 + $extraVideoFee + $extraLetterFee;
-		$stripe_fee = round($totalAmount * 0.03 + 0.30, 2);
-		$total_price = round($totalAmount + $stripe_fee, 2);
-
-		unset($validated['video_file'], $validated['letter_file']);
-
-		// Store new Cloudinary public IDs into the validated array
-		$validated['video_public_id'] = $videoPublicId;
+		$validated['video_public_id']  = $videoPublicId;
+		$validated['video_public_url'] = $videoPublicUrl;
 		$validated['letter_public_id'] = $letterPublicId;
+		$validated['letter_public_url'] = $letterPublicUrl;
+
+		// legacy fields no longer used
+		$validated['video_path'] = null;
+		$validated['letter_path'] = null;
 
 		// Session data for checkout success
 		session([
