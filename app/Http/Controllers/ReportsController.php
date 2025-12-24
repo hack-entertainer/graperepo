@@ -245,12 +245,33 @@ class ReportsController extends Controller
 
 	public function cancel()
 	{
+		$data = session('report_data');
+
+		if ($data) {
+			// Delete uploaded PDF if it exists
+			if (!empty($data['letter_public_id'])) {
+				Cloudinary::destroy(
+					$data['letter_public_id'],
+					['resource_type' => 'raw']
+				);
+			}
+
+			// Delete uploaded video if it exists (future-proof)
+			if (!empty($data['video_public_id'])) {
+				Cloudinary::destroy(
+					$data['video_public_id'],
+					['resource_type' => 'video']
+				);
+			}
+		}
+
 		session()->forget('report_data');
 
 		return redirect()
 			->route('user.add-report.form')
-			->with('error', 'Payment was cancelled or failed. Please try again.');
+			->with('error', 'Payment was cancelled. Uploaded files were removed.');
 	}
+
 
 	/**
 	 * Display the specified report.
