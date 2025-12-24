@@ -103,9 +103,11 @@ class ReportsController extends Controller
 		$extraVideoFee  = 0;
 		$extraLetterFee = 0;
 
-		// -------------------------
-		// PDF / Letter (Cloudinary)
-		// -------------------------
+		/*
+    |--------------------------------------------------------------------------
+    | Letter / PDF (Cloudinary – raw)
+    |--------------------------------------------------------------------------
+    */
 		$letterPublicId  = null;
 		$letterPublicUrl = null;
 
@@ -124,42 +126,70 @@ class ReportsController extends Controller
 			$extraLetterFee = 29;
 		}
 
-		// -------------------------
-		// Video (LEGACY — untouched)
-		// -------------------------
-		$videoPath = null;
+		/*
+    |--------------------------------------------------------------------------
+    | Video (Cloudinary – video)
+    |--------------------------------------------------------------------------
+    */
+		$videoPublicId  = null;
+		$videoPublicUrl = null;
 
 		if ($request->hasFile('video_file')) {
-			$video = $request->file('video_file');
-
-			$safeName = Str::slug(
-				pathinfo($video->getClientOriginalName(), PATHINFO_FILENAME)
+			$upload = Cloudinary::upload(
+				$request->file('video_file')->getRealPath(),
+				[
+					'folder'        => 'reports/videos',
+					'resource_type' => 'video',
+				]
 			);
 
-			$newName = $safeName . '_' . time() . '.' . $video->getClientOriginalExtension();
+			$videoPublicId  = $upload->getPublicId();
+			$videoPublicUrl = $upload->getSecurePath();
 
-			$videoPath = $video->storeAs('reports_video', $newName, 'public');
 			$extraVideoFee = 29;
 		}
 
+		/*
+    |--------------------------------------------------------------------------
+    | Stripe pricing
+    |--------------------------------------------------------------------------
+    */
 		$totalAmount = 49 + $extraVideoFee + $extraLetterFee;
 		$stripeFee   = round($totalAmount * 0.03 + 0.30, 2);
 		$totalPrice  = round($totalAmount + $stripeFee, 2);
 
 		unset($validated['video_file'], $validated['letter_file']);
 
+		/*
+    |--------------------------------------------------------------------------
+    | Persist to session ONLY (DB write happens on success)
+    |--------------------------------------------------------------------------
+    */
 		session([
 			'report_data' => array_merge($validated, [
-				'video_path'        => $videoPath, // legacy
+				// Cloudinary (PDF)
 				'letter_public_id'  => $letterPublicId,
 				'letter_public_url' => $letterPublicUrl,
+
+				// Cloudinary (Video)
+				'video_public_id'   => $videoPublicId,
+				'video_public_url'  => $videoPublicUrl,
+
+				// pricing
 				'extra_video_fee'   => $extraVideoFee,
 				'extra_letter_fee'  => $extraLetterFee,
+
+				// reporter
 				'reporter_name'     => auth()->user()->name,
 				'reporter_email'    => auth()->user()->email,
 			])
 		]);
 
+		/*
+    |--------------------------------------------------------------------------
+    | Stripe checkout
+    |--------------------------------------------------------------------------
+    */
 		Stripe::setApiKey(config('services.stripe.secret'));
 
 		$session = Session::create([
@@ -179,10 +209,12 @@ class ReportsController extends Controller
 			'cancel_url'  => route('user.report.cancel'),
 		]);
 
-		// dd(session('report_data'));
+		
+
 
 		return redirect($session->url);
 	}
+
 
 	/**
 	 * Stripe success callback.
@@ -198,11 +230,13 @@ class ReportsController extends Controller
 		}
 
 		Reports::create([
+			// Reporter
 			'reporter_id'    => auth()->id(),
 			'reporter_name'  => $data['reporter_name'],
 			'reporter_email' => $data['reporter_email'],
 			'alternate_reporter_name' => $data['alternate_reporter_name'] ?? null,
 
+			// Subject
 			'subject_fullname' => $data['subject_fullname'],
 			'subject_email'    => $data['subject_email'],
 			'subject_phone'    => $data['subject_phone'],
@@ -212,6 +246,7 @@ class ReportsController extends Controller
 			'subject_zipcode'  => $data['subject_zipcode'],
 			'subject_country'  => $data['subject_country'],
 
+			// Event
 			'type_event'    => $data['type_event'],
 			'event_date'    => $data['event_date'],
 			'event_address' => $data['event_address'],
@@ -220,20 +255,27 @@ class ReportsController extends Controller
 			'event_zipcode' => $data['event_zipcode'],
 			'event_country' => $data['event_country'],
 
-			'description'   => $data['description'],
-			'video_link'    => $data['video_link'] ?? null,
+			// Content
+			'description' => $data['description'],
+			'video_link'  => $data['video_link'] ?? null,
 
+			// ---------------------------------
 			// Cloudinary (PDF)
+			// ---------------------------------
 			'letter_public_id'  => $data['letter_public_id'] ?? null,
 			'letter_public_url' => $data['letter_public_url'] ?? null,
 
-			// legacy
-			'video_path' => $data['video_path'] ?? null,
+			// ---------------------------------
+			// Cloudinary (Video)
+			// ---------------------------------
+			'video_public_id'   => $data['video_public_id'] ?? null,
+			'video_public_url'  => $data['video_public_url'] ?? null,
 
-			'report_number'   => now()->format('Y') . '-RRDB-' . strtoupper(uniqid()),
-			'is_paid'         => true,
-			'payment_status'  => 'paid',
-			'paid_at'         => now(),
+			// Payment
+			'report_number'  => now()->format('Y') . '-RRDB-' . strtoupper(uniqid()),
+			'is_paid'        => true,
+			'payment_status' => 'paid',
+			'paid_at'        => now(),
 		]);
 
 		session()->forget('report_data');
@@ -248,7 +290,10 @@ class ReportsController extends Controller
 		$data = session('report_data');
 
 		if ($data) {
-			// Delete uploaded PDF if it exists
+
+			// ---------------------------------
+			// Delete PDF from Cloudinary
+			// ---------------------------------
 			if (!empty($data['letter_public_id'])) {
 				Cloudinary::destroy(
 					$data['letter_public_id'],
@@ -256,7 +301,9 @@ class ReportsController extends Controller
 				);
 			}
 
-			// Delete uploaded video if it exists (future-proof)
+			// ---------------------------------
+			// Delete Video from Cloudinary
+			// ---------------------------------
 			if (!empty($data['video_public_id'])) {
 				Cloudinary::destroy(
 					$data['video_public_id'],
@@ -269,9 +316,8 @@ class ReportsController extends Controller
 
 		return redirect()
 			->route('user.add-report.form')
-			->with('error', 'Payment was cancelled. Uploaded files were removed.');
+			->with('error', 'Payment was cancelled or failed. Please try again.');
 	}
-
 
 	/**
 	 * Display the specified report.
