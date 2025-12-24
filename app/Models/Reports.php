@@ -14,31 +14,37 @@ class Reports extends Model
         'reporter_name',
         'reporter_email',
         'alternate_reporter_name',
+
         'subject_fullname',
-        'subject_location',
-        'type_event',
-        'event_date',
-        'description',
-        'video_link',
-        'report_number',
-        'is_paid',
-        'payment_status',
-        'paid_at',
+        'subject_email',
+        'subject_phone',
         'subject_address',
         'subject_city',
         'subject_state',
         'subject_zipcode',
         'subject_country',
+
+        'type_event',
+        'event_date',
         'event_address',
         'event_city',
         'event_state',
         'event_zipcode',
         'event_country',
+
+        'description',
+        'video_link',
+
+        // Cloudinary
+        'letter_public_id',
+        'letter_public_url',
+
         'video_path',
-        'letter_path',
-        'total_comment',
-        'subject_email',
-        'subject_phone',
+
+        'report_number',
+        'status',
+        'is_paid',
+        'payment_status',
+        'paid_at',
     ];
 }
-

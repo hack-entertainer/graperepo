@@ -2,18 +2,8 @@ local mysql root password: RootPass#2025
 
 test users:
 
-jabba@jabbba.net
-
-Murufo@forexnews.bg
-
-Wobbuffet@Wobbuffet.Wobbuffet   
-
-
 Gus Lantern  
 gus@lanternpost.net  
-
-Clara Bixby  
-      
 
 Otis Drummond  
 otis@drummonddesk.net  
