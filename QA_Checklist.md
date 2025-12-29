@@ -44,6 +44,19 @@
   - Status: ✅  
   - Route: `/report-detail/{report_number}`  
   - Notes: Feature-complete from a happy-path perspective. ⚠️ Payment Status not yet needed but will be required if Draft Reports are introduced.
+
+- [ ] **Cloudinary File Security (Post-Release Hardening)**  
+  - Expected: Uploaded videos and letters are not publicly accessible via raw URLs.  
+  - Status: ⚠️ Deferred (Known Limitation)  
+  - Notes:  
+    - Files are currently uploaded to Cloudinary using public URLs.  
+    - URLs are stored in the database and rendered conditionally.  
+    - No access control, signed URLs, or authentication is enforced yet.  
+    - Follow-up required before full production hardening:  
+      - Convert uploads to authenticated/private Cloudinary assets **or**  
+      - Serve downloads via application-controlled routes using `*_public_id`  
+      - Optional: add expiration, authorization checks, and access logging  
+    - No schema changes required to implement later.
 ---
 
 ## Answers (Defendant Flow)
@@ -123,14 +136,14 @@
   - Expected: No JS errors/warnings in browser console.  
   - Status: ⚠️ (minor warnings remain).  
 
-- [ ] **Cross-Browser Compatibility**  
+- [❌] **Cross-Browser Compatibility**  
   - Expected: Works on Chrome, Firefox, Safari, Edge.  
   - Status: ❌ (Safari spacing issue).  
 
 ---
 
 ## Admin Panel
-- [x] **Admin Login & Dashboard**  
+- [✅] **Admin Login & Dashboard**  
   - Expected: Admin CRUD and report oversight.  
   - Status: ✅  
   - Route: `/admin/dashboard`  
@@ -145,4 +158,4 @@
 ---
 
 ## Misc. bugs
-- [ ] **users can see entire dashboard**  
+- [ ] **users can see entire dashboard**

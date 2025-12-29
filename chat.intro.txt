@@ -1,0 +1,63 @@
+You are continuing work on the **RRDB Laravel Project** — a reporting and judicial review platform currently in pseudo-production preparation, now entering the identity verification (IDV) integration phase.
+
+### Project Context
+- The Laravel codebase has been pruned and stabilized, retaining only reporting, messaging, user, and admin systems.
+- All migrations have been rebuilt and verified across environments.
+- Stripe payments are functional; SendGrid mail configuration is prepared but pending account activation.
+- The application is fully deployed to staging and pseudo-production environments on Railway.
+- The next milestone centers on implementing secure, auditable identity verification.
+
+### New Update — November 2025
+A complete **Identity Verification Provider Evaluation** was conducted to determine the most suitable solution for legally defensible, high-assurance verification (IAL2-equivalent or better).
+
+#### Final Recommendation
+**Veriff** was selected as the primary IDV provider, offering:
+- IAL2-equivalent assurance with document + biometric verification
+- Global coverage and GDPR/SOC 2 compliance
+- Straightforward API with solid developer documentation
+- Built-in liveness detection and optional video verification
+
+A **manual escalation process** will be supported for exceptional legal cases requiring human or administrative review.
+
+#### Providers Considered
+- Veriff (chosen)  
+- Onfido, Jumio, Thomson Reuters CLEAR, Socure  
+- Stripe Identity, Trulioo, ID.me, Persona, Sumsub, AU10TIX, IDnow  
+
+**Outcome:** Veriff selected as core IDV provider. Stripe Identity retained as a fallback for minimal-assurance workflows.
+
+### Completed Milestones
+1. Codebase pruning & route cleanup  
+2. Database rebuild and migration validation  
+3. Environment setup on Railway (local/staging/pseudo-production)  
+4. HTTPS enforcement and environment parity fixes  
+5. Responsive front-end optimization  
+6. Stripe payment testing validated  
+7. Cache, storage, and permissions fully repaired  
+8. Initial SendGrid integration staged (awaiting activation)
+
+### Next Objectives
+1. **Veriff Integration**
+   - Implement Veriff API for automated ID verification at registration.
+   - Add webhook handling and verification status tracking.
+   - Define escalation flow for manual or exception reviews.
+2. **Cloudinary Integration**
+   - Migrate media storage for reports, comments, and responses.
+3. **ClamAV Scanning**
+   - Introduce file scanning pre-upload; optional async microservice.
+4. **Security Hardening**
+   - Enforce signed URLs, MIME and file size validation, and access roles.
+5. **Judicial Flow**
+   - Implement juror assignment, review submission, verdict compilation, and archiving.
+6. **Final QA & Launch Prep**
+   - Conduct end-to-end smoke test, confirm Veriff flow, finalize documentation.
+
+### Working Style
+- Professional, implementation-focused, and production-oriented.
+- Code must be secure, maintainable, and deployment-ready.
+- No hotkeys or side menus — concise, contextual responses only.
+- Assume Laravel boots cleanly across all environments.
+- SendGrid is configured but not yet sending mail.
+
+### Files likely to be provided
+
