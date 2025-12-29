@@ -10,11 +10,13 @@ class Reports extends Model
     use HasFactory;
 
     protected $fillable = [
+        // Reporter
         'reporter_id',
         'reporter_name',
         'reporter_email',
         'alternate_reporter_name',
 
+        // Subject
         'subject_fullname',
         'subject_email',
         'subject_phone',
@@ -24,6 +26,7 @@ class Reports extends Model
         'subject_zipcode',
         'subject_country',
 
+        // Event
         'type_event',
         'event_date',
         'event_address',
@@ -32,15 +35,26 @@ class Reports extends Model
         'event_zipcode',
         'event_country',
 
+        // Content
         'description',
         'video_link',
 
-        // Cloudinary
+        // -----------------------------
+        // Cloudinary (PDF / Letter)
+        // -----------------------------
         'letter_public_id',
         'letter_public_url',
 
+        // -----------------------------
+        // Cloudinary (Video) ✅ FIX
+        // -----------------------------
+        'video_public_id',
+        'video_public_url',
+
+        // Legacy (still allowed, untouched)
         'video_path',
 
+        // Payment / Meta
         'report_number',
         'status',
         'is_paid',

@@ -91,26 +91,31 @@
 						@endif
 
 						{{-- ✅ Cloudinary Letter Download --}}
-						@if($report->letter_public_url)
-						<div class="mb-3">
-							<label class="fw-bold">Letter to Subject:</label>
-							<a href="{{ $report->letter_public_url }}" target="_blank" rel="noopener">
-								📄 Download Letter
+						@if ($report->letter_public_url)
+						<div class="report-attachment">
+							<strong>Attached Document:</strong>
+							<a
+								href="{{ $report->letter_public_url }}"
+								target="_blank"
+								rel="noopener">
+								Download PDF
 							</a>
 						</div>
 						@endif
 
-						@if($report->video_path)
-						<div class="card mb-4">
-							<div class="card-header fw-bold">Video Evidence</div>
-							<div class="card-body">
-								<video class="w-100 rounded shadow" controls>
-									<source src="{{ asset('storage/' . $report->video_path) }}" type="video/mp4">
-									Your browser does not support the video tag.
-								</video>
-							</div>
+						{{-- ✅ Cloudinary Video Download --}}
+						@if ($report->video_public_url)
+						<div class="report-attachment">
+							<strong>Attached Video:</strong>
+							<a
+								href="{{ $report->video_public_url }}"
+								target="_blank"
+								rel="noopener">
+								View / Download Video
+							</a>
 						</div>
 						@endif
+
 					</div>
 				</div>
 

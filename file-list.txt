@@ -1,0 +1,9 @@
+MIGRATION_LOG.md
+QA_Checklist.md
+.env (sanitized)
+routes/web.php
+app/Http/Controllers/ReportsController.php
+app/Models/Reports.php
+config/filesystems.php
+config/mail.php
+composer.json
