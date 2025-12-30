@@ -90,32 +90,30 @@
 						</p>
 						@endif
 
-						{{-- ✅ Cloudinary Letter Download --}}
-						@if ($report->letter_public_url)
-						<div class="report-attachment">
-							<strong>Attached Document:</strong>
-							<a
-								href="{{ $report->letter_public_url }}"
-								target="_blank"
-								rel="noopener">
-								Download PDF
-							</a>
+						{{-- 📎 Attached Documents --}}
+						@if($documents->isNotEmpty())
+						<hr>
+						<div class="report-attachments">
+							<strong>Attachments:</strong>
+							<ul class="mt-2">
+								@foreach ($documents as $document)
+								<li>
+									@if ($document->kind === 'letter')
+									📄 Letter:
+									@elseif ($document->kind === 'video')
+									🎥 Video:
+									@else
+									📎 Document:
+									@endif
+
+									<a href="{{ route('documents.download', $document->id) }}">
+										{{ $document->original_filename ?? 'Download' }}
+									</a>
+								</li>
+								@endforeach
+							</ul>
 						</div>
 						@endif
-
-						{{-- ✅ Cloudinary Video Download --}}
-						@if ($report->video_public_url)
-						<div class="report-attachment">
-							<strong>Attached Video:</strong>
-							<a
-								href="{{ $report->video_public_url }}"
-								target="_blank"
-								rel="noopener">
-								View / Download Video
-							</a>
-						</div>
-						@endif
-
 					</div>
 				</div>
 
