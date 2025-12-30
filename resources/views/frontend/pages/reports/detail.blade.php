@@ -127,6 +127,7 @@
 						<p><strong>Date:</strong> {{ $response->created_at }}</p>
 						<p>{{ $response->content }}</p>
 
+						<!-- TODO -- UPDATE TO USE DOCUMENT TABLE -->
 						@if($response->file_path)
 						<p>
 							<a href="{{ Storage::url($response->file_path) }}" target="_blank">
