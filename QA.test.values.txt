@@ -1,29 +1,10 @@
 local mysql root password: RootPass#2025
 
-test users:
+Test Users:
 
-Gus Lantern  
-gus@lanternpost.net  
+Lance McKinley
+lance@mcky.net
 
-Otis Drummond  
-otis@drummonddesk.net  
 
-Fiona Cabbage
-fiona@cabbagecrate.net  
 
-Tempura Fries
-tempura@fries.net
-==D
-
-Edna Sprocket  
-edna@sprocketbox.net  
-
-Harvey Mulligan  
-harvey@mulliganmail.net  
-
-Dora Crumble  
-dora@crumblebin.net  
-
-Lionel Peabody  
-lionel@peabodypress.net  
 
