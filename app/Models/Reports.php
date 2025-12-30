@@ -61,4 +61,9 @@ class Reports extends Model
         'payment_status',
         'paid_at',
     ];
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 }
