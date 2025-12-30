@@ -47,16 +47,64 @@
 
 - [ ] **Cloudinary File Security (Post-Release Hardening)**  
   - Expected: Uploaded videos and letters are not publicly accessible via raw URLs.  
-  - Status: ⚠️ Deferred (Known Limitation)  
+  - Status: ⚠️ Deferred (Known Limitation — Now Designed)  
   - Notes:  
-    - Files are currently uploaded to Cloudinary using public URLs.  
-    - URLs are stored in the database and rendered conditionally.  
-    - No access control, signed URLs, or authentication is enforced yet.  
-    - Follow-up required before full production hardening:  
-      - Convert uploads to authenticated/private Cloudinary assets **or**  
-      - Serve downloads via application-controlled routes using `*_public_id`  
-      - Optional: add expiration, authorization checks, and access logging  
-    - No schema changes required to implement later.
+    - **Current State**  
+      - Files are uploaded to Cloudinary and stored as public URLs.  
+      - URLs are persisted and rendered conditionally.  
+      - No access control is enforced yet.  
+
+    - **Planned Security Model (v1.1)**  
+      - Files are treated as protected evidence assets.  
+      - Cloudinary URLs are **never rendered directly** in Blade.  
+      - Downloads are served via applica
+    - **Access Policy**  
+      - Users derive zero or more **report-relative roles**:  
+        - `admin` (system administrator)  
+        - `reporter` (creator of report)  
+        - `reported` (identified subject, confirmed by admin)  
+        - `juror` (assigned by admin)  
+        - `party` (additional permitted participant, e.g. witness)  
+        - `unrelated` (logged-in user with no report role)  
+        - `public` (anonymous browser)  
+      - Each document declares **accepted roles**.  
+      - Access is granted if the intersection of:  
+        - user’s derived roles  
+        - document’s accepted roles  
+        is non-empty, **or** the document is marked `public`.  
+
+    - **Download Flow**  
+      - Download links are conditionally rendered based on role eligibility.  
+      - On click, Laravel **re-authenticates and re-authorizes** the request.  
+      - If authorized:  
+        - A **single-use, short-lived token** is minted server-side.  
+        - Token is immediately resolved into a **short-lived signed Cloudinary URL**.  
+        - Token is burned on use.  
+        - User is redirected immediately to Cloudinary for download.  
+      - Cloudinary URLs are therefore:  
+        - ephemeral  
+        - non-reusable in practice  
+        - invisible to templates  
+
+    - **Logging / Auditability**  
+      - Every download request is logged, regardless of outcome.  
+      - Logged fields include:  
+        - user (or anonymous)  
+        - report  
+        - document  
+        - derived role(s)  
+        - outcome (allowed / denied / expired / invalid)  
+        - IP address  
+        - User-Agent  
+      - Enables future abuse detection, rate limiting, and audit trails.  
+
+    - **Future Extensions (Explicitly Supported)**  
+      - Public documents (anonymous or authenticated)  
+      - Juror-only or admin-only evidence  
+      - Draft / embargoed documents  
+      - Per-role TTL adjustments  
+      - Server-streamed delivery for sensitive assets  
+    - No schema changes required to implement baseline model.
 ---
 
 ## Answers (Defendant Flow)
@@ -142,12 +190,50 @@
 
 ---
 
-## Admin Panel
+## Admin Panel & System Governance
+
 - [✅] **Admin Login & Dashboard**  
-  - Expected: Admin CRUD and report oversight.  
+  - Expected: Admin access to dashboard, CRUD operations, and report oversight.  
   - Status: ✅  
   - Route: `/admin/dashboard`  
-  - Notes: Minor UI polish (pagination Safari issue).
+  - Notes: Core functionality complete. Minor UI polish outstanding  
+    (pagination Safari spacing issue).
+
+- [ ] **User Administration & Governance Controls**  
+  - Expected: Admins can fully administer users and system roles within  
+    capabilities implemented by engineering.  
+  - Status: ⚠️ Policy Defined / UI Partially Implemented  
+
+  - Authority Model:  
+    - **Engineering** defines and implements all system capabilities  
+      (architecture, limits, overrides).  
+    - **Admins** have complete authority over everything exposed by engineering.  
+    - **Moderators** operate only within powers explicitly designed by admins.  
+
+  - Admin Capabilities:  
+    - Promote users up to and including `admin`  
+    - Demote users (including removal of `moderator` or `admin`)  
+    - Freeze user accounts (disable access without deletion)  
+    - Unfreeze user accounts  
+    - Assign or revoke platform-level roles (`admin`, `moderator`)  
+    - Assign incident-relative roles (jurors, reported identity, parties)  
+    - Manage report oversight and content visibility within system limits  
+
+  - Constraints & Governance:  
+    - Only admins may create or remove moderators.  
+    - Moderators cannot promote, demote, or assign platform authority.  
+    - No in-system role supersedes admin authority.  
+    - Developer override exists outside the application and is not part of  
+      normal system governance.  
+
+  - Trust Model:  
+    - Admins possess total system power within implemented boundaries.  
+    - The admin role is reserved for the most highly trusted individuals  
+      (the client and explicitly designated designees).  
+
+  - Audit Expectations (Future):  
+    - Administrative actions should be logged for traceability  
+      (who acted, what action was taken, when).
 
 ---
 
