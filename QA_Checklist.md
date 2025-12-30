@@ -233,7 +233,15 @@
 
   - Audit Expectations (Future):  
     - Administrative actions should be logged for traceability  
-      (who acted, what action was taken, when).
+      (who acted, what action was taken, when).      
+
+  - Admin Continuity Safeguard:  
+    - The system must always retain **at least two active admins**.  
+    - An admin may demote themselves only if doing so leaves **two or more**
+      admins remaining.  
+    - Self-demotion is disallowed if it would reduce the admin count below two.  
+    - This safeguard exists to prevent loss of system authority and to protect
+      against “hit-by-a-bus” scenarios.
 
 ---
 
