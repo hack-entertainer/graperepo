@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use App\Models\Reports;
 use App\Models\ReportResponse;
 use App\Models\ReportComments;
-use App\User;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;

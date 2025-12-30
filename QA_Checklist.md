@@ -237,9 +237,11 @@
 
   - Admin Continuity Safeguard:  
     - The system must always retain **at least two active admins**.  
-    - An admin may demote themselves only if doing so leaves **two or more**
+    - An admin may be **demoted** only if doing so leaves **two or more**
       admins remaining.  
-    - Self-demotion is disallowed if it would reduce the admin count below two.  
+    - Those remaining admins must each have **logged in within the previous
+      24 hours**, ensuring active stewardship and communication.  
+    - Demotion is disallowed if any of these conditions are not met.  
     - This safeguard exists to prevent loss of system authority and to protect
       against “hit-by-a-bus” scenarios.
 
