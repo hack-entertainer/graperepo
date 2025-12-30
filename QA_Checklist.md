@@ -237,6 +237,38 @@
 
 ---
 
+## Moderation (Report-Level Authority)
+
+- [ ] **Moderator Role & Capabilities**  
+  - Expected: Moderators manage reports and related content without access  
+    to sitewide or system-level settings.  
+  - Status: ⚠️ Policy Defined / UI Pending  
+
+  - Moderator Capabilities:  
+    - Review and moderate reports  
+    - Manage report status and lifecycle within defined workflows  
+    - Moderate comments and evidence associated with reports  
+    - Access protected documents if document visibility allows `moderator`  
+    - Perform incident-level oversight and intervention  
+
+  - Explicit Restrictions:  
+    - Moderators cannot access or modify sitewide settings  
+    - Moderators cannot promote or demote users  
+    - Moderators cannot assign or revoke platform roles  
+    - Moderators cannot create or remove other moderators or admins  
+
+  - Governance Notes:  
+    - Moderators are designated by admins only  
+    - Moderator authority is scoped strictly to report management  
+    - All moderator powers exist within limits defined by engineering  
+      and granted by admins  
+
+  - Audit Expectations (Future):  
+    - Moderator actions should be logged separately from admin actions  
+      for traceability and accountability.
+
+---
+
 ## Robust Identity Verification
 - [ ] **review client communications**  
 - [ ] **generate AI checklist**  
