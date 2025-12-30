@@ -95,25 +95,44 @@ class ReportsController extends Controller
 		$extraVideoFee  = 0;
 		$extraLetterFee = 0;
 
+		$video_doc  = null;
+		$letter_doc = null;
+
 		if ($request->hasFile('letter_file')) {
-			Cloudinary::upload(
+			$upload = Cloudinary::upload(
 				$request->file('letter_file')->getRealPath(),
 				[
 					'folder'        => 'reports/letters',
 					'resource_type' => 'raw',
 				]
 			);
+
+			$letter_doc = [
+				'type'          => 'letter',
+				'resource_type' => 'raw',
+				'public_id'     => $upload->getPublicId(),
+				'original_name' => $request->file('letter_file')->getClientOriginalName(),
+			];
+
 			$extraLetterFee = 29;
 		}
 
 		if ($request->hasFile('video_file')) {
-			Cloudinary::upload(
+			$upload = Cloudinary::upload(
 				$request->file('video_file')->getRealPath(),
 				[
 					'folder'        => 'reports/videos',
 					'resource_type' => 'video',
 				]
 			);
+
+			$video_doc = [
+				'type'          => 'video',
+				'resource_type' => 'video',
+				'public_id'     => $upload->getPublicId(),
+				'original_name' => $request->file('video_file')->getClientOriginalName(),
+			];
+
 			$extraVideoFee = 29;
 		}
 
@@ -125,10 +144,12 @@ class ReportsController extends Controller
 
 		session([
 			'report_data' => array_merge($validated, [
-				'extra_video_fee'   => $extraVideoFee,
-				'extra_letter_fee'  => $extraLetterFee,
-				'reporter_name'     => auth()->user()->name,
-				'reporter_email'    => auth()->user()->email,
+				'video_doc'        => $video_doc,
+				'letter_doc'       => $letter_doc,
+				'extra_video_fee'  => $extraVideoFee,
+				'extra_letter_fee' => $extraLetterFee,
+				'reporter_name'    => auth()->user()->name,
+				'reporter_email'   => auth()->user()->email,
 			])
 		]);
 
@@ -154,6 +175,7 @@ class ReportsController extends Controller
 		return redirect($session->url);
 	}
 
+
 	public function success()
 	{
 		$data = session('report_data');
@@ -164,7 +186,7 @@ class ReportsController extends Controller
 				->with('error', 'No data found. Please resubmit your report.');
 		}
 
-		Reports::create([
+		$report = Reports::create([
 			'reporter_id'    => auth()->id(),
 			'reporter_name'  => $data['reporter_name'],
 			'reporter_email' => $data['reporter_email'],
@@ -196,12 +218,39 @@ class ReportsController extends Controller
 			'paid_at'        => now(),
 		]);
 
+		// ---------------------------------
+		// Persist documents
+		// ---------------------------------
+
+		if (!empty($data['letter_doc'])) {
+			\App\Models\Document::create([
+				'report_id'      => $report->id,
+				'type'           => $data['letter_doc']['type'],
+				'resource_type'  => $data['letter_doc']['resource_type'],
+				'public_id'      => $data['letter_doc']['public_id'],
+				'original_name'  => $data['letter_doc']['original_name'],
+				'uploaded_by'    => auth()->id(),
+			]);
+		}
+
+		if (!empty($data['video_doc'])) {
+			\App\Models\Document::create([
+				'report_id'      => $report->id,
+				'type'           => $data['video_doc']['type'],
+				'resource_type'  => $data['video_doc']['resource_type'],
+				'public_id'      => $data['video_doc']['public_id'],
+				'original_name'  => $data['video_doc']['original_name'],
+				'uploaded_by'    => auth()->id(),
+			]);
+		}
+
 		session()->forget('report_data');
 
 		return redirect()
 			->route('user')
 			->with('success', 'Your report was submitted and paid successfully!');
 	}
+
 
 	public function cancel()
 	{
