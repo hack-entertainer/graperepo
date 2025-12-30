@@ -299,10 +299,15 @@ class ReportsController extends Controller
 			->orderBy('created_at', 'desc')
 			->get();
 
+		$documents = \App\Models\Document::where('report_id', $report->id)
+			->orderBy('created_at', 'asc')
+			->get();
+
 		return view('frontend.pages.reports.detail', [
 			'report' => $report,
 			'report_response' => $report_response,
 			'report_comments' => $report_comments,
+			'documents' => $documents,
 		]);
 	}
 }
