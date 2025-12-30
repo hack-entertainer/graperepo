@@ -160,6 +160,7 @@ Route::get('/cloudinary-test', function () {
 	}
 });
 
-// Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
-//     Lfm::routes();
-// });
+Route::get('/documents/{document}/download', [
+	\App\Http\Controllers\DocumentController::class,
+	'download'
+])->name('documents.download');
