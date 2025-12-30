@@ -62,17 +62,11 @@ class ReportsController extends Controller
 		);
 	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 */
 	public function create()
 	{
 		return view('frontend.pages.reports.add');
 	}
 
-	/**
-	 * Store a newly created resource in storage (pre-payment).
-	 */
 	public function store(Request $request)
 	{
 		$validated = $request->validate([
@@ -101,93 +95,43 @@ class ReportsController extends Controller
 		$extraVideoFee  = 0;
 		$extraLetterFee = 0;
 
-		/*
-    |--------------------------------------------------------------------------
-    | Letter / PDF (Cloudinary – raw)
-    |--------------------------------------------------------------------------
-    */
-		$letterPublicId  = null;
-		$letterPublicUrl = null;
-
 		if ($request->hasFile('letter_file')) {
-			$upload = Cloudinary::upload(
+			Cloudinary::upload(
 				$request->file('letter_file')->getRealPath(),
 				[
 					'folder'        => 'reports/letters',
 					'resource_type' => 'raw',
 				]
 			);
-
-			$letterPublicId  = $upload->getPublicId();
-			$letterPublicUrl = $upload->getSecurePath();
-
 			$extraLetterFee = 29;
 		}
 
-		/*
-    |--------------------------------------------------------------------------
-    | Video (Cloudinary – video)
-    |--------------------------------------------------------------------------
-    */
-		$videoPublicId  = null;
-		$videoPublicUrl = null;
-
 		if ($request->hasFile('video_file')) {
-			$upload = Cloudinary::upload(
+			Cloudinary::upload(
 				$request->file('video_file')->getRealPath(),
 				[
 					'folder'        => 'reports/videos',
 					'resource_type' => 'video',
 				]
 			);
-
-			$videoPublicId  = $upload->getPublicId();
-			$videoPublicUrl = $upload->getSecurePath();
-
 			$extraVideoFee = 29;
 		}
 
-		/*
-    |--------------------------------------------------------------------------
-    | Stripe pricing
-    |--------------------------------------------------------------------------
-    */
 		$totalAmount = 49 + $extraVideoFee + $extraLetterFee;
 		$stripeFee   = round($totalAmount * 0.03 + 0.30, 2);
 		$totalPrice  = round($totalAmount + $stripeFee, 2);
 
 		unset($validated['video_file'], $validated['letter_file']);
 
-		/*
-    |--------------------------------------------------------------------------
-    | Persist to session ONLY (DB write happens on success)
-    |--------------------------------------------------------------------------
-    */
 		session([
 			'report_data' => array_merge($validated, [
-				// Cloudinary (PDF)
-				'letter_public_id'  => $letterPublicId,
-				'letter_public_url' => $letterPublicUrl,
-
-				// Cloudinary (Video)
-				'video_public_id'   => $videoPublicId,
-				'video_public_url'  => $videoPublicUrl,
-
-				// pricing
 				'extra_video_fee'   => $extraVideoFee,
 				'extra_letter_fee'  => $extraLetterFee,
-
-				// reporter
 				'reporter_name'     => auth()->user()->name,
 				'reporter_email'    => auth()->user()->email,
 			])
 		]);
 
-		/*
-    |--------------------------------------------------------------------------
-    | Stripe checkout
-    |--------------------------------------------------------------------------
-    */
 		Stripe::setApiKey(config('services.stripe.secret'));
 
 		$session = Session::create([
@@ -207,16 +151,9 @@ class ReportsController extends Controller
 			'cancel_url'  => route('user.report.cancel'),
 		]);
 
-		
-
-
 		return redirect($session->url);
 	}
 
-
-	/**
-	 * Stripe success callback.
-	 */
 	public function success()
 	{
 		$data = session('report_data');
@@ -228,13 +165,11 @@ class ReportsController extends Controller
 		}
 
 		Reports::create([
-			// Reporter
 			'reporter_id'    => auth()->id(),
 			'reporter_name'  => $data['reporter_name'],
 			'reporter_email' => $data['reporter_email'],
 			'alternate_reporter_name' => $data['alternate_reporter_name'] ?? null,
 
-			// Subject
 			'subject_fullname' => $data['subject_fullname'],
 			'subject_email'    => $data['subject_email'],
 			'subject_phone'    => $data['subject_phone'],
@@ -244,7 +179,6 @@ class ReportsController extends Controller
 			'subject_zipcode'  => $data['subject_zipcode'],
 			'subject_country'  => $data['subject_country'],
 
-			// Event
 			'type_event'    => $data['type_event'],
 			'event_date'    => $data['event_date'],
 			'event_address' => $data['event_address'],
@@ -253,23 +187,9 @@ class ReportsController extends Controller
 			'event_zipcode' => $data['event_zipcode'],
 			'event_country' => $data['event_country'],
 
-			// Content
 			'description' => $data['description'],
 			'video_link'  => $data['video_link'] ?? null,
 
-			// ---------------------------------
-			// Cloudinary (PDF)
-			// ---------------------------------
-			'letter_public_id'  => $data['letter_public_id'] ?? null,
-			'letter_public_url' => $data['letter_public_url'] ?? null,
-
-			// ---------------------------------
-			// Cloudinary (Video)
-			// ---------------------------------
-			'video_public_id'   => $data['video_public_id'] ?? null,
-			'video_public_url'  => $data['video_public_url'] ?? null,
-
-			// Payment
 			'report_number'  => now()->format('Y') . '-RRDB-' . strtoupper(uniqid()),
 			'is_paid'        => true,
 			'payment_status' => 'paid',
@@ -285,31 +205,6 @@ class ReportsController extends Controller
 
 	public function cancel()
 	{
-		$data = session('report_data');
-
-		if ($data) {
-
-			// ---------------------------------
-			// Delete PDF from Cloudinary
-			// ---------------------------------
-			if (!empty($data['letter_public_id'])) {
-				Cloudinary::destroy(
-					$data['letter_public_id'],
-					['resource_type' => 'raw']
-				);
-			}
-
-			// ---------------------------------
-			// Delete Video from Cloudinary
-			// ---------------------------------
-			if (!empty($data['video_public_id'])) {
-				Cloudinary::destroy(
-					$data['video_public_id'],
-					['resource_type' => 'video']
-				);
-			}
-		}
-
 		session()->forget('report_data');
 
 		return redirect()
@@ -317,9 +212,6 @@ class ReportsController extends Controller
 			->with('error', 'Payment was cancelled or failed. Please try again.');
 	}
 
-	/**
-	 * Display the specified report.
-	 */
 	public function detail($report_number)
 	{
 		$report = Reports::where('report_number', $report_number)->firstOrFail();
