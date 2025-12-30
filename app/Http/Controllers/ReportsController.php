@@ -224,23 +224,25 @@ class ReportsController extends Controller
 
 		if (!empty($data['letter_doc'])) {
 			\App\Models\Document::create([
-				'report_id'      => $report->id,
-				'type'           => $data['letter_doc']['type'],
-				'resource_type'  => $data['letter_doc']['resource_type'],
-				'public_id'      => $data['letter_doc']['public_id'],
-				'original_name'  => $data['letter_doc']['original_name'],
-				'uploaded_by'    => auth()->id(),
+				'report_id'                 => $report->id,
+				'kind'                      => 'letter',
+				'cloudinary_public_id'      => $data['letter_doc']['public_id'],
+				'cloudinary_resource_type'  => $data['letter_doc']['resource_type'],
+				'original_filename'         => $data['letter_doc']['original_name'],
+				'mime_type'                 => $data['letter_doc']['mime_type'] ?? null,
+				'uploaded_by_user_id'       => auth()->id(),
 			]);
 		}
 
 		if (!empty($data['video_doc'])) {
 			\App\Models\Document::create([
-				'report_id'      => $report->id,
-				'type'           => $data['video_doc']['type'],
-				'resource_type'  => $data['video_doc']['resource_type'],
-				'public_id'      => $data['video_doc']['public_id'],
-				'original_name'  => $data['video_doc']['original_name'],
-				'uploaded_by'    => auth()->id(),
+				'report_id'                 => $report->id,
+				'kind'                      => 'video',
+				'cloudinary_public_id'      => $data['video_doc']['public_id'],
+				'cloudinary_resource_type'  => $data['video_doc']['resource_type'],
+				'original_filename'         => $data['video_doc']['original_name'],
+				'mime_type'                 => $data['video_doc']['mime_type'] ?? null,
+				'uploaded_by_user_id'       => auth()->id(),
 			]);
 		}
 
