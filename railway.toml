@@ -1,13 +1,21 @@
 [build]
-commands = [
-  "mkdir -p storage/framework/{cache,views,sessions}",
+builder = "nixpacks"
+
+[build.commands]
+setup = [
+  "mkdir -p storage/framework/cache",
+  "mkdir -p storage/framework/views",
+  "mkdir -p storage/framework/sessions",
+  "mkdir -p storage/framework/data",
   "mkdir -p bootstrap/cache",
   "chmod -R 775 storage bootstrap/cache",
-  "composer install --ignore-platform-reqs --optimize-autoloader",
-  "npm install",
-  "npm run build",
 ]
 
+build = [
+  "composer install --ignore-platform-reqs --optimize-autoloader",
+  "npm ci",
+  "npm run build",
+]
 
 [deploy]
 startCommand = "./start.sh"
