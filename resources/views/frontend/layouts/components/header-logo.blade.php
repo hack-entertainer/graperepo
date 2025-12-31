@@ -2,9 +2,9 @@
 <header class="header shadow-sm border-b border-gray-200">
 
 	<!-- Topbar: contact info + auth links -->
-	<x-frontend.layouts.components.header-topbar
-		:phone="$settings->phone ?? null"
-		:email="$settings->email ?? null" />
+	<x-frontend.layouts.components.header-topbar />
+	:phone="$settings->phone ?? null"
+	:email="$settings->email ?? null" />
 
 	<!-- Logo section: centered on mobile, left-aligned on desktop -->
 	<x-frontend.layouts.components.header-logo
