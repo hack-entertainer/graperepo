@@ -3,70 +3,68 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
-use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use GuzzleHttp\Client;
 
 class DocumentController extends Controller
 {
     public function download(Document $document, Request $request)
     {
         // -------------------------------------------------
-        // Authorization (stub — intentionally minimal)
+        // Authorization (stub for now)
         // -------------------------------------------------
         if (!auth()->check()) {
             abort(403);
         }
 
         // -------------------------------------------------
-        // Cloudinary client
+        // Build Cloudinary API URL (NOT CDN)
         // -------------------------------------------------
-        $cloudinary = new Cloudinary(config('cloudinary.cloud_url'));
+        $cloudName   = config('cloudinary.cloud_name');
+        $resource    = $document->cloudinary_resource_type; // raw | video | image
+        $publicId    = $document->cloudinary_public_id;
+
+        $apiUrl = "https://api.cloudinary.com/v1_1/{$cloudName}/{$resource}/download";
 
         // -------------------------------------------------
-        // HARD expiration (seconds)
+        // HTTP client with Cloudinary credentials
         // -------------------------------------------------
-        // NOTE:
-        // - This ONLY works with authenticated delivery
-        // - Signed URLs alone do NOT enforce expiration
-        $expiresAt = now()->addSeconds(5)->timestamp;
-
-        // -------------------------------------------------
-        // Build authenticated, time-limited URL
-        // -------------------------------------------------
-        $options = [
-            'resource_type' => $document->cloudinary_resource_type,
-            'type'          => 'authenticated',
-            'sign_url'      => true,
-            'auth_token'    => [
-                'expiration' => $expiresAt,
+        $client = new Client([
+            'auth' => [
+                config('cloudinary.api_key'),
+                config('cloudinary.api_secret'),
             ],
-        ];
-
-        if ($document->cloudinary_resource_type === 'video') {
-            $signedUrl = $cloudinary
-                ->video($document->cloudinary_public_id)
-                ->toUrl($options);
-        } else {
-            // raw (PDF, DOC, etc.)
-            $signedUrl = $cloudinary
-                ->raw($document->cloudinary_public_id)
-                ->toUrl($options);
-        }
-
-        // -------------------------------------------------
-        // Access logging (ephemeral for now)
-        // -------------------------------------------------
-        logger()->info('document.download', [
-            'document_id' => $document->id,
-            'user_id'     => auth()->id(),
-            'ip'          => $request->ip(),
-            'ua'          => $request->userAgent(),
-            'expires_at'  => $expiresAt,
+            'stream' => true,
         ]);
 
         // -------------------------------------------------
-        // Redirect to Cloudinary
+        // Stream Cloudinary → Laravel → User
         // -------------------------------------------------
-        return redirect()->away($signedUrl);
+        return new StreamedResponse(function () use ($client, $apiUrl, $publicId) {
+            $response = $client->post($apiUrl, [
+                'form_params' => [
+                    'public_id' => $publicId,
+                ],
+            ]);
+
+            $body = $response->getBody();
+
+            while (!$body->eof()) {
+                echo $body->read(8192);
+                flush();
+            }
+        }, 200, [
+            // -------------------------------------------------
+            // Headers
+            // -------------------------------------------------
+            'Content-Type'        => $document->mime_type ?? 'application/octet-stream',
+            'Content-Disposition' => 'attachment; filename="' . addslashes($document->original_filename) . '"',
+
+            // Hard no-cache
+            'Cache-Control'       => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
+        ]);
     }
 }

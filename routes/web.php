@@ -9,6 +9,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ReportCommentsController;
 
+use Cloudinary\Cloudinary;
+use App\Http\Controllers\DocumentController;
+
 // CACHE CLEAR ROUTE
 Route::get('cache-clear', function () {
 	Artisan::call('optimize:clear');
@@ -121,9 +124,6 @@ Route::group(['prefix' => '/user', 'middleware' => ['user']], function () {
 Route::get('list-reports', [ReportsController::class, 'index'])->name('list-reports');
 Route::get('report-detail/{report_number}', [ReportsController::class, 'detail'])->name('report-detail');
 
-
-use Cloudinary\Cloudinary;
-
 Route::get('/cloudinary-test', function () {
 
 	// Force direct configuration (bypassing Laravel/ENV)
@@ -160,7 +160,5 @@ Route::get('/cloudinary-test', function () {
 	}
 });
 
-Route::get('/documents/{document}/download', [
-	\App\Http\Controllers\DocumentController::class,
-	'download'
-])->name('documents.download');
+Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
+	->name('documents.download');

@@ -7,15 +7,16 @@ return [
     | Cloudinary Credentials
     |--------------------------------------------------------------------------
     |
-    | These values are loaded from your .env file.
+    | Loaded directly from .env
+    | Used by uploads and Admin API access.
     |
     */
-
-  'cloud_url' => env('CLOUDINARY_URL'),
 
   'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
   'api_key'    => env('CLOUDINARY_API_KEY'),
   'api_secret' => env('CLOUDINARY_API_SECRET'),
+
+  'cloud_url' => env('CLOUDINARY_URL'),
 
   /*
     |--------------------------------------------------------------------------
@@ -23,8 +24,6 @@ return [
     |--------------------------------------------------------------------------
     */
 
-  'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET', null),
-
+  // Always serve HTTPS URLs when applicable
   'secure' => true,
-
 ];
