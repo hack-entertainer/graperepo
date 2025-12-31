@@ -104,6 +104,7 @@ class ReportsController extends Controller
 				[
 					'folder'        => 'reports/letters',
 					'resource_type' => 'raw',
+					'type'          => 'authenticated',
 				]
 			);
 
@@ -123,6 +124,7 @@ class ReportsController extends Controller
 				[
 					'folder'        => 'reports/videos',
 					'resource_type' => 'video',
+					'type'          => 'authenticated',
 				]
 			);
 

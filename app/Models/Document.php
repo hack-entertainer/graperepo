@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use App\User;
 
 class Document extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUlids;
+
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
         'report_id',
@@ -20,17 +24,11 @@ class Document extends Model
         'uploaded_by_user_id',
     ];
 
-    /**
-     * The report this document belongs to.
-     */
     public function report()
     {
         return $this->belongsTo(Reports::class);
     }
 
-    /**
-     * The user who uploaded the document.
-     */
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
