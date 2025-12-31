@@ -38,33 +38,41 @@ class DocumentController extends Controller
             'stream' => true,
         ]);
 
+        $response = $client->post($apiUrl, [
+            'form_params' => ['public_id' => $publicId],
+        ]);
+
+        dd(
+            $response->getStatusCode(),
+            $response->getHeader('Content-Type')
+        );
+
+
         // -------------------------------------------------
         // Stream Cloudinary → Laravel → User
         // -------------------------------------------------
         return new StreamedResponse(function () use ($client, $apiUrl, $publicId) {
-            $response = $client->post($apiUrl, [
-                'form_params' => [
-                    'public_id' => $publicId,
-                ],
-            ]);
+            try {
+                $response = $client->post($apiUrl, [
+                    'form_params' => [
+                        'public_id' => $publicId,
+                    ],
+                ]);
 
-            $body = $response->getBody();
+                $body = $response->getBody();
 
-            while (!$body->eof()) {
-                echo $body->read(8192);
-                flush();
+                while (!$body->eof()) {
+                    echo $body->read(8192);
+                    flush();
+                }
+            } catch (\Throwable $e) {
+                logger()->error('Cloudinary stream failed', [
+                    'message' => $e->getMessage(),
+                ]);
             }
         }, 200, [
-            // -------------------------------------------------
-            // Headers
-            // -------------------------------------------------
             'Content-Type'        => $document->mime_type ?? 'application/octet-stream',
             'Content-Disposition' => 'attachment; filename="' . addslashes($document->original_filename) . '"',
-
-            // Hard no-cache
-            'Cache-Control'       => 'no-store, no-cache, must-revalidate, max-age=0',
-            'Pragma'              => 'no-cache',
-            'Expires'             => '0',
         ]);
     }
 }
