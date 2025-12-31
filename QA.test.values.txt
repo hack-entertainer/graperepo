@@ -1,9 +1,0 @@
-local mysql root password: RootPass#2025
-
-Test Users:
-
-Lance McKinley
-lance@mcky.net
-
-Tempura Fries
-tempura@fries.net
