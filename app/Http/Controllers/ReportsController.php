@@ -69,28 +69,43 @@ class ReportsController extends Controller
 
 	public function store(Request $request)
 	{
-		$validated = $request->validate([
-			'subject_fullname' => 'required|string|max:255',
-			'subject_address'  => 'required|string',
-			'subject_city'     => 'required|string',
-			'subject_state'    => 'required|string',
-			'subject_zipcode'  => 'required|string',
-			'subject_country'  => 'required|string',
-			'subject_email'    => 'nullable|email',
-			'subject_phone'    => 'nullable|string|max:50',
-			'type_event'       => 'required',
-			'event_date'       => 'required|date',
-			'event_address'    => 'required|string',
-			'event_city'       => 'required|string',
-			'event_state'      => 'required|string',
-			'event_zipcode'    => 'required|string',
-			'event_country'    => 'required|string',
-			'description'      => 'required|string',
-			'video_link'       => 'nullable|url',
-			'alternate_reporter_name' => 'nullable|string',
-			'video_file'       => 'nullable|file|max:102400',
-			'letter_file'      => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-		]);
+		try {
+			$validated = $request->validate([
+				'subject_fullname' => 'required|string|max:255',
+				'subject_address'  => 'required|string',
+				'subject_city'     => 'required|string',
+				'subject_state'    => 'required|string',
+				'subject_zipcode'  => 'required|string',
+				'subject_country'  => 'required|string',
+				'subject_email'    => 'nullable|email',
+				'subject_phone'    => 'nullable|string|max:50',
+				'type_event'       => 'required',
+				'event_date'       => 'required|date',
+				'event_address'    => 'required|string',
+				'event_city'       => 'required|string',
+				'event_state'      => 'required|string',
+				'event_zipcode'    => 'required|string',
+				'event_country'    => 'required|string',
+				'description'      => 'required|string',
+				'video_link'       => 'nullable|url',
+				'alternate_reporter_name' => 'nullable|string',
+				'video_file'       => 'nullable|file|max:102400',
+				'letter_file'      => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+			]);
+		} catch (\Illuminate\Validation\ValidationException $e) {
+			logger()->error('Report submission validation failed', [
+				'errors' => $e->errors(),
+				'video_present' => $request->hasFile('video_file'),
+				'video_mime' => optional($request->file('video_file'))->getClientMimeType(),
+				'video_ext' => optional($request->file('video_file'))->getClientOriginalExtension(),
+				'video_size_kb' => optional($request->file('video_file'))->getSize()
+					? round($request->file('video_file')->getSize() / 1024, 2)
+					: null,
+			]);
+
+			throw $e; // preserve normal Laravel behavior
+		}
+
 
 		$extraVideoFee  = 0;
 		$extraLetterFee = 0;
