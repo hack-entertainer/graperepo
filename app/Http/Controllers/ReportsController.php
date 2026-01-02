@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -69,6 +68,12 @@ class ReportsController extends Controller
 
 	public function store(Request $request)
 	{
+		logger()->info('Report submission received', [
+			'has_video'  => $request->hasFile('video_file'),
+			'video_size' => $request->file('video_file')?->getSize(),
+			'video_mime' => $request->file('video_file')?->getMimeType(),
+		]);
+
 		try {
 			$validated = $request->validate([
 				'subject_fullname' => 'required|string|max:255',
