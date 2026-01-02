@@ -69,6 +69,11 @@ class ReportsController extends Controller
 
 	public function store(Request $request)
 	{
+		logger()->info('FILES dump', [
+			'files' => array_keys($_FILES),
+			'video_error' => $_FILES['video_file']['error'] ?? null,
+		]);
+
 		logger()->info('Report submission received', [
 			'has_video' => $request->hasFile('video_file'),
 			'video_valid' => optional($request->file('video_file'))->isValid(),
