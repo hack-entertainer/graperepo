@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Reports;
 use App\Models\ReportResponse;
 use App\Models\ReportComments;
@@ -387,6 +388,66 @@ class ReportsController extends Controller
 		]);
 
 		return redirect($checkout->url);
+	}
+
+	public function reporterReply(Request $request, $report_id)
+	{
+		$request->validate([
+			'content' => 'required',
+			'response_file' => 'nullable|file|max:10240', // giới hạn 10MB
+		]);
+
+
+		$filePath = null;
+
+		if ($request->hasFile('response_file')) {
+			$file = $request->file('response_file');
+
+			$originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+			$extension = $file->getClientOriginalExtension();
+
+			$safeName = Str::slug($originalName); // 
+			$timestamp = time();
+
+			// new file: bang-chung-abc_1717039999.pdf
+			$newFilename = $safeName . '_' . $timestamp . '.' . $extension;
+
+			// save responses
+			$filePath = $file->storeAs('reports_responses', $newFilename, 'public');
+		}
+		// get report number
+		$report = Reports::where('id', $report_id)->first();
+
+		session(['reporter_reply_data' => [
+			'user_id' => auth()->id(),
+			'report_id' => $report_id,
+			'report_number' => $report->report_number,
+			'user_fullname' => auth()->user()->name,
+			'type' => 'reporter_reply',
+			'content' => $request->content,
+			'file_path' => $filePath, // lưu đường dẫn file
+			'is_paid' => false,
+			'payment_status' => 'unpaid',
+		]]);
+
+		Stripe::setApiKey(config('services.stripe.secret'));
+
+		$checkout_session = Session::create([
+			'payment_method_types' => ['card'],
+			'line_items' => [[
+				'price_data' => [
+					'currency' => 'usd',
+					'unit_amount' => 5077, // $50.77
+					'product_data' => ['name' => 'Subject responses - Report #' . $report->report_number],
+				],
+				'quantity' => 1,
+			]],
+			'mode' => 'payment',
+			'success_url' => route('user.reporter-reply.success'),
+			'cancel_url' => route('user.reporter-reply.cancel'),
+		]);
+
+		return redirect($checkout_session->url);
 	}
 
 	/**
