@@ -115,6 +115,65 @@
 						</div>
 						@endif
 					</div>
+
+					<!-- Subject Response Modal (BS4) -->
+					<div class="modal fade" id="subjectResponsesModal" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<form method="POST" action="{{ route('user.subject-responses.submit', $report->report_number) }}" enctype="multipart/form-data">
+								@csrf
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">Post Your Response</h5>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+
+									<div class="modal-body">
+										<textarea name="response_text" class="form-control mb-3" rows="4" placeholder="Write your response..." required></textarea>
+
+										<label for="subject_response_file" class="form-label"><strong>Upload Evidence File (optional)</strong></label>
+										<input type="file" id="subject_response_file" name="response_file" class="form-control mt-3">
+									</div>
+
+									<div class="modal-footer">
+										<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										<button type="submit" class="btn btn-primary">Submit & Pay ($49)</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+
+					<!-- Reporter Reply Modal (BS4) -->
+					<div class="modal fade" id="reporterReplyModal" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<form method="POST" action="{{ route('user.reporter-reply.submit', $report->id) }}" enctype="multipart/form-data">
+								@csrf
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">Reporter Reply</h5>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+
+									<div class="modal-body">
+										<textarea class="form-control mb-3" name="content" rows="10" required placeholder="Write your response..."></textarea>
+
+										<label for="reporter_response_file" class="form-label"><strong>Upload Evidence File (optional)</strong></label>
+										<input type="file" class="form-control" id="reporter_response_file" name="response_file">
+									</div>
+
+									<div class="modal-footer">
+										<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										<button type="submit" class="btn btn-primary">Submit & Pay ($49)</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+
 				</div>
 
 				@foreach($report_response as $response)
