@@ -116,6 +116,38 @@
 						@endif
 					</div>
 
+					{{-- Response Action Buttons (BS4) --}}
+					<div class="mt-4">
+						@auth
+						@if(auth()->id() === $report->reporter_id)
+						{{-- Reporter can post a reply --}}
+						<button
+							class="btn btn-warning"
+							data-toggle="modal"
+							data-target="#reporterReplyModal">
+							Post Reply ($49)
+						</button>
+						@else
+						{{-- Subject can post a response --}}
+						<button
+							class="btn btn-success"
+							data-toggle="modal"
+							data-target="#subjectResponsesModal">
+							Post Response ($49)
+						</button>
+						@endif
+						@else
+						<p class="text-danger" style="font-size: 17px;">
+							If you are the reported subject, please
+							<a href="{{ route('login.form') }}" style="color:#007bff">
+								<strong>LOGIN</strong>
+							</a>
+							to post a response.
+						</p>
+						@endauth
+					</div>
+
+
 					<!-- Subject Response Modal (BS4) -->
 					<div class="modal fade" id="subjectResponsesModal" tabindex="-1" role="dialog" aria-hidden="true">
 						<div class="modal-dialog" role="document">
