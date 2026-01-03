@@ -341,4 +341,68 @@ class ReportsController extends Controller
 			'documents' => $documents,
 		]);
 	}
+
+
+	public function buyCommentPackage(Request $request, $report_id)
+	{
+		$credits = (int) $request->input('package');
+		$price = match ($credits) {
+			1 => 0.81,
+			25 => 12.92,
+			100 => 50.77,
+			default => abort(400, 'Invalid package'),
+		};
+		// get report number
+		$report = Reports::where('id', $report_id)->first();
+
+		session(['buy_comment_package' => [
+			'user_id' => auth()->id(),
+			'report_id' => $report_id,
+			'report_number' => $report->report_number,
+			'credits' => $credits,
+			'amount' => $price,
+		]]);
+
+		Stripe::setApiKey(config('services.stripe.secret'));
+
+		$checkout_session = Session::create([
+			'payment_method_types' => ['card'],
+			'line_items' => [[
+				'price_data' => [
+					'currency' => 'usd',
+					'unit_amount' => $price * 100,
+					'product_data' => ['name' => "Comment Package ($credits)"],
+				],
+				'quantity' => 1,
+			]],
+			'mode' => 'payment',
+			'success_url' => route('user.buycomments.success'),
+			'cancel_url' => route('user.buycomments.cancel'),
+		]);
+
+		return redirect($checkout_session->url);
+	}
+
+	public function buyCommentSuccess()
+	{
+		$data = session('buy_comment_package');
+		if (!$data) {
+			return redirect()->route('user')->with('error', 'No session found.');
+		}
+
+		$user = User::find($data['user_id']);
+		if ($user) {
+			$user->increment('credits_comment', $data['credits']);
+		}
+		$report_number = $data['report_number'];
+		session()->forget('buy_comment_package');
+
+		return redirect()->route('report-detail', $report_number)->with('success', 'Your comment credits were added successfully!');
+	}
+
+	public function buyCommentCancel()
+	{
+		session()->forget('buy_comment_package');
+		return redirect()->route('user')->with('error', 'Payment was cancelled.');
+	}
 }
