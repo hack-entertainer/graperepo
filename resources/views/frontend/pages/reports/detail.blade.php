@@ -240,4 +240,8 @@
 		</div>
 	</div>
 </section>
+@include('frontend.pages.reports.components.buy-comment-modal', [
+'report' => $report
+])
+
 @endsection

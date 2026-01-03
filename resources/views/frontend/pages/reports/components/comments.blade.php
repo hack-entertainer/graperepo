@@ -70,11 +70,10 @@
         <button
             type="button"
             class="btn btn-warning btn-sm w-100"
-            data-bs-toggle="modal"
-            data-bs-target="#buyCommentModal">
+            data-toggle="modal"
+            data-target="#buyCommentModal">
             Buy Comment Credits
         </button>
-
 
         @endif
         @else
