@@ -67,13 +67,6 @@
             disabled
             placeholder="You must buy comment credits to comment..."></textarea>
 
-        <!-- <button
-            class="btn btn-warning btn-sm w-100"
-            style="position: relative; z-index: 1056;"
-            data-toggle="modal"
-            data-target="#buyCommentModal">
-            Buy Comment Credits
-        </button> -->
         <button
             type="button"
             class="btn btn-warning btn-sm w-100"
