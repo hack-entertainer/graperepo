@@ -69,10 +69,12 @@
 
         <button
             class="btn btn-warning btn-sm w-100"
+            style="position: relative; z-index: 1056;"
             data-toggle="modal"
             data-target="#buyCommentModal">
             Buy Comment Credits
         </button>
+
 
         @endif
         @else
