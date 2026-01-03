@@ -344,6 +344,94 @@ class ReportsController extends Controller
 		]);
 	}
 
+	/**
+	 * Submit a subject response (Stripe checkout entry point)
+	 */
+	public function subjectResponses(Request $request, $report_number)
+	{
+		$request->validate([
+			'response_text' => 'required|string|max:10000',
+		]);
+
+		$report = Reports::where('report_number', $report_number)->firstOrFail();
+		$user = auth()->user();
+
+		// Store pending response in session
+		session([
+			'subject_response_data' => [
+				'user_id'       => $user->id,
+				'user_fullname' => $user->name,
+				'report_id'     => $report->id,
+				'report_number' => $report->report_number,
+				'content'       => $request->response_text,
+			],
+		]);
+
+		Stripe::setApiKey(config('services.stripe.secret'));
+
+		$checkout = Session::create([
+			'payment_method_types' => ['card'],
+			'line_items' => [[
+				'price_data' => [
+					'currency' => 'usd',
+					'unit_amount' => 4900, // $49.00 (+ Stripe fees disclosed elsewhere)
+					'product_data' => [
+						'name' => 'Subject Response - Report #' . $report->report_number,
+					],
+				],
+				'quantity' => 1,
+			]],
+			'mode' => 'payment',
+			'success_url' => route('user.subject-responses.success', $report->report_number),
+			'cancel_url'  => route('user.subject-responses.cancel', $report->report_number),
+		]);
+
+		return redirect($checkout->url);
+	}
+
+	/**
+	 * Stripe success callback for subject responses
+	 */
+	public function subjectResponsesSuccess($report_number)
+	{
+		$data = session('subject_response_data');
+
+		if (!$data) {
+			return redirect()
+				->route('report-detail', $report_number)
+				->with('error', 'No pending response found.');
+		}
+
+		ReportResponse::create([
+			'user_id'        => $data['user_id'],
+			'user_fullname'  => $data['user_fullname'],
+			'report_id'      => $data['report_id'],
+			'type'           => 'subject_responses',
+			'content'        => $data['content'],
+			'is_paid'        => true,
+			'payment_status' => 'paid',
+			'paid_at'        => now(),
+		]);
+
+		session()->forget('subject_response_data');
+
+		return redirect()
+			->route('report-detail', $report_number)
+			->with('success', 'Your response has been posted successfully.');
+	}
+
+	/**
+	 * Stripe cancel callback for subject responses
+	 */
+	public function subjectResponsesCancel($report_number)
+	{
+		session()->forget('subject_response_data');
+
+		return redirect()
+			->route('report-detail', $report_number)
+			->with('error', 'Payment was cancelled. Your response was not submitted.');
+	}
+
 
 	public function buyCommentPackage(Request $request, $report_id)
 	{
