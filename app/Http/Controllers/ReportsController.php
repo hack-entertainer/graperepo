@@ -10,6 +10,8 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
+use App\User;
+
 class ReportsController extends Controller
 {
 	/**
