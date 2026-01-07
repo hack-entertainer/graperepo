@@ -168,20 +168,6 @@
                         </div>
                     </div>
 
-                    <!-- <div class="mb-3">
-                            <label style="font-weight: bold;padding-bottom:10px;">Upload Video File (optional  + Fee $29)</label>
-                            <div class="row g-3">
-                                <div class="col-md-12">
-                                    <input type="file" class="form-control" name="video_file" accept="video/*">
-                                    <small class="form-text text-muted">
-                                        Optional: You may upload a video file (maximum 100MB). An additional fee of <b>$29</b> will apply if a video is attached.
-                                    </small><br/>
-                                    <small id="videoWarning" class="form-text text-danger d-none">
-                                    ⚠️ The selected video exceeds 100MB. Please choose a smaller file.
-                                    </small>
-                                </div>
-                            </div>
-                        </div> -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Upload Video File Statement (optional + Fee $29)</label>
                         <div class="d-flex align-items-center gap-2">
@@ -196,16 +182,6 @@
                         </small>
                     </div>
 
-                    <!-- <div class="mb-3">
-                        <label for="letter_file" class="form-label fw-bold">Upload Letter to Subject (optional + Fee $29)</label>
-                        <input type="file" class="form-control" name="letter_file" accept=".pdf,.doc,.docx" id="letter_file">
-                        <small id="letterHelp" class="form-text text-muted">
-                            You may upload a formal letter (PDF/DOC maximum 10MB) to be physically mailed to the Subject's address. A separate fee of <b>$29</b> applies.
-                        </small>
-                        <small id="letterWarning" class="form-text text-danger d-none">
-                            ⚠️ Letter file is too large. Maximum allowed is 10MB.
-                        </small>
-                        </div> -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Upload Letter to Subject (optional + Fee $29)</label>
                         <div class="d-flex align-items-center gap-2">
