@@ -1,0 +1,9 @@
+:8000 {
+    root * /home/mangofett/arena/graperepo/public
+
+    php_server {
+        index index.php
+    }
+
+    file_server
+}
