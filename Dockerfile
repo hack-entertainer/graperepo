@@ -1,42 +1,33 @@
-# --------------------------------------------------
-# Stage 1: Composer dependencies
-# --------------------------------------------------
-FROM composer:2 AS vendor
+FROM dunglas/frankenphp:1-php8.4
 
 WORKDIR /app
 
-COPY composer.json composer.lock ./
+# PHP extensions
+RUN install-php-extensions \
+    pdo_mysql \
+    mbstring \
+    intl \
+    zip \
+    opcache \
+    exif
 
+# Copy app
+COPY . /app
+
+# Install Composer (FrankenPHP image does NOT ship with it)
+RUN curl -sS https://getcomposer.org/installer \
+    | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install dependencies
 RUN composer install \
     --no-dev \
     --no-interaction \
     --prefer-dist \
     --optimize-autoloader
 
+# Permissions (Laravel)
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-# --------------------------------------------------
-# Stage 2: FrankenPHP runtime
-# --------------------------------------------------
-FROM dunglas/frankenphp:latest
+EXPOSE 8000
 
-RUN install-php-extensions \
-    pdo_mysql \
-    mbstring \
-    intl \
-    zip \
-    opcache
-
-WORKDIR /app
-
-# Copy app source
-COPY . /app
-
-# Copy vendor from composer stage
-COPY --from=vendor /app/vendor /app/vendor
-
-# Ensure Laravel writable dirs exist
-RUN mkdir -p storage bootstrap/cache \
- && chown -R www-data:www-data storage bootstrap/cache
-
-# Force FrankenPHP to use our Caddyfile
 CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]

@@ -1,7 +1,5 @@
-:{$PORT:8000}
+http://:{$PORT:8000}
 
 root * /app/public
-
 php_server
-
 file_server
