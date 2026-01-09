@@ -1,5 +1,6 @@
 FROM dunglas/frankenphp:latest
 
+# Install PHP extensions
 RUN install-php-extensions \
     pdo_mysql \
     mbstring \
@@ -8,11 +9,20 @@ RUN install-php-extensions \
     opcache
 
 WORKDIR /app
+
+# Copy composer files first (for layer caching)
+COPY composer.json composer.lock ./
+
+# Install dependencies (no dev, optimized)
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader
+
+# Copy the rest of the application
 COPY . /app
 
-# Laravel writable dirs
+# Ensure Laravel writable directories exist
 RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
-
-# FrankenPHP image entrypoint will run Caddy/FrankenPHP.
-# It will automatically read /app/Caddyfile if that's what you used locally.
