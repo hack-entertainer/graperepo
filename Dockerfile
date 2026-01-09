@@ -1,6 +1,5 @@
 FROM dunglas/frankenphp:latest
 
-# Install PHP extensions required by Laravel
 RUN install-php-extensions \
     pdo_mysql \
     mbstring \
@@ -9,5 +8,8 @@ RUN install-php-extensions \
     opcache
 
 WORKDIR /app
-
 COPY . /app
+
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
