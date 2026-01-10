@@ -16,7 +16,7 @@ RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy composer files first (better cache behavior)
-COPY composer.json composer.lock ./
+COPY composer.json composer.lock artisan ./
 
 # Create Laravel-required directories BEFORE composer install
 RUN mkdir -p \
