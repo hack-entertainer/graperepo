@@ -11,12 +11,22 @@ RUN install-php-extensions \
     opcache \
     exif
 
-# Copy app
-COPY . /app
-
-# Install Composer (FrankenPHP image does NOT ship with it)
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Copy composer files first (better cache behavior)
+COPY composer.json composer.lock ./
+
+# Create Laravel-required directories BEFORE composer install
+RUN mkdir -p \
+    storage/framework/cache \
+    storage/framework/views \
+    storage/framework/sessions \
+    bootstrap/cache
+
+# Set safe permissions
+RUN chmod -R 775 storage bootstrap/cache
 
 # Install dependencies
 RUN composer install \
@@ -25,7 +35,10 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-# Permissions (Laravel)
+# Copy the rest of the application
+COPY . .
+
+# Ownership for runtime (FrankenPHP runs as www-data)
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 8000
