@@ -1,0 +1,8 @@
+services:
+  app:
+    image: graperepo-franken
+    container_name: graperepo
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: local
