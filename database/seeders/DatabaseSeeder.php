@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Database\Seeders\Users\AdminUsersSeeder;
+use Database\Seeders\SystemSettingsSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -11,6 +12,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminUsersSeeder::class,
+            SystemSettingsSeeder::class,
         ]);
     }
 }
