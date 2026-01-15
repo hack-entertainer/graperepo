@@ -5,6 +5,7 @@ namespace Database\Seeders\Users;
 use App\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AdminUsersSeeder extends Seeder
 {
@@ -23,20 +24,34 @@ class AdminUsersSeeder extends Seeder
         $user = User::where('email', $email)->first();
 
         if (! $user) {
-            // Creating a new admin user
+            if (! $password) {
+                Log::warning(
+                    'AdminUsersSeeder skipped admin creation: RRDB_ADMIN_PASSWORD not set.',
+                    ['email' => $email]
+                );
+                return;
+            }
+
+            if (! str_contains(trim($name), ' ')) {
+                Log::warning(
+                    'AdminUsersSeeder skipped admin creation: RRDB_ADMIN_NAME must include first and last name.',
+                    ['email' => $email, 'name' => $name]
+                );
+                return;
+            }
+
             $user = User::create([
                 'name'     => $name,
                 'email'    => $email,
-                'password' => $password
-                    ? Hash::make($password)
-                    : Hash::make(str()->random(64)),
+                'password' => Hash::make($password),
             ]);
         }
 
-        // Promote to admin if not already
-        if ($user->role !== 'admin') {
-            $user->role = 'admin';
-            $user->save();
-        }
+
+        // Assert system role (idempotent, env-gated)
+        DB::table('system_roles')->updateOrInsert(
+            ['user_id' => $user->id],
+            ['role' => 'admin']
+        );
     }
 }

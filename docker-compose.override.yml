@@ -1,5 +1,7 @@
 services:
   app:
+    build:
+      context: .
     user: "${UID}:${GID}"
     environment:
       HOME: /app
