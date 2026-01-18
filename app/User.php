@@ -2,9 +2,10 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\SystemRole;
+// use App\Models\Order;
 
 class User extends Authenticatable
 {
@@ -16,7 +17,14 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','role','photo','status','provider','provider_id',
+        'name',
+        'email',
+        'password',
+        // 'role', // deprecated: system authority lives in system_roles
+        'photo',
+        'status',
+        'provider',
+        'provider_id',
     ];
 
     /**
@@ -25,7 +33,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**
@@ -37,7 +46,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function orders(){
-        return $this->hasMany('App\Models\Order');
+    // public function orders()
+    // {
+    //     return $this->hasMany(Order::class);
+    // }
+
+    /**
+     * System-level role (admin, moderator).
+     * Authority is enforced via middleware, not this model.
+     */
+    public function systemRole()
+    {
+        return $this->hasOne(SystemRole::class);
     }
 }

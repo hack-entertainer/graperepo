@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class RequireSystemRole
 {
-    public function handle(Request $request, Closure $next, ...$roles)
+    public function handle($request, \Closure $next, ...$roles)
     {
         $user = $request->user();
 
@@ -15,12 +15,16 @@ class RequireSystemRole
             abort(403);
         }
 
-        // Admins are always allowed
-        if ($user->systemRole === 'admin') {
+        // systemRole is a relationship; role is the column
+        $systemRole = optional($user->systemRole)->role;
+
+        // Admins always pass
+        if ($systemRole === 'admin') {
             return $next($request);
         }
 
-        if (in_array($user->systemRole, $roles, true)) {
+        // Explicit role match
+        if (in_array($systemRole, $roles, true)) {
             return $next($request);
         }
 
