@@ -1,46 +1,69 @@
-<div class="border rounded p-4 space-y-3 bg-gray-50">
+<div class="card mb-3 shadow-sm">
+    <div class="card-header bg-light">
+        <strong>{{ $purpose }}</strong>
+    </div>
 
-    <h3 class="font-semibold text-sm text-gray-700">
-        {{ $purpose }}
-    </h3>
+    <div class="card-body">
 
-    @if ($currentVote)
-    <p class="text-sm text-gray-600">
-        Your current vote: <strong>{{ ucfirst($currentVote) }}</strong>
-    </p>
-    @endif
+        @if ($latestVote)
+        <p class="mb-1">
+            Your latest vote:
+            <strong>{{ ucfirst($latestVote->vote_value) }}</strong>
+        </p>
 
-    @if (! $canVote)
-    <p class="text-sm text-gray-500">
-        {{ $reason }}
-    </p>
-    @else
-    <form method="POST" action="{{ route('votes.store') }}" class="flex gap-2">
-        @csrf
+        <p class="text-muted small mb-3">
+            Cast on {{ $latestVote->created_at->format('M j, Y \\a\\t g:i A') }}.
+            Only your <strong>most recent vote</strong> is counted.
+        </p>
+        @else
+        <p class="text-muted small mb-3">
+            You have not voted on this incident yet.
+        </p>
+        @endif
 
-        <input type="hidden" name="target_type" value="{{ $targetType }}">
-        <input type="hidden" name="target_id" value="{{ $targetId }}">
-
-        <button
-            type="submit"
-            name="vote_value"
-            value="support"
-            class="px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700">
-            Support
-        </button>
+        @if (! $canVote)
+        <p class="text-danger mb-2">
+            {{ $reason }}
+        </p>
 
         <button
-            type="submit"
-            name="vote_value"
-            value="oppose"
-            class="px-3 py-1 text-sm rounded bg-red-600 text-white hover:bg-red-700">
-            Oppose
+            type="button"
+            class="btn btn-warning btn-sm"
+            data-toggle="modal"
+            data-target="#buyCommentModal">
+            Buy Comment Credits
         </button>
-    </form>
+        @else
+        <form method="POST" action="{{ route('votes.store') }}">
+            @csrf
 
-    <p class="text-xs text-gray-500">
-        Voting costs {{ $cost }} comments.
-    </p>
-    @endif
+            <input type="hidden" name="target_type" value="{{ $targetType }}">
+            <input type="hidden" name="target_id" value="{{ $targetId }}">
 
+            <div class="btn-group" role="group">
+                <button
+                    type="submit"
+                    name="vote_value"
+                    value="support"
+                    class="btn btn-success btn-sm">
+                    Support
+                </button>
+
+                <button
+                    type="submit"
+                    name="vote_value"
+                    value="oppose"
+                    class="btn btn-danger btn-sm">
+                    Oppose
+                </button>
+            </div>
+        </form>
+
+        <p class="text-muted small mt-2">
+            Voting costs {{ $cost }} comment credits.
+            You may vote again to change your position.
+        </p>
+        @endif
+
+    </div>
 </div>
