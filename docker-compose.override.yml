@@ -1,4 +1,11 @@
 services:
   app:
+    build:
+      context: .
+    user: "${UID}:${GID}"
+    environment:
+      HOME: /app
+      XDG_CONFIG_HOME: /app/storage
+      PSYSH_CONFIG_DIR: /app/storage/psysh
     volumes:
       - .:/app

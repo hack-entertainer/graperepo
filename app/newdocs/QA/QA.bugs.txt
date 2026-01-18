@@ -1,0 +1,11 @@
+QA Bug Intake
+
+This file records raw bug reports as they are discovered.
+
+Rules:
+- No filtering
+- No prioritization
+- No rewriting history
+
+Bugs may later be promoted into structured tracking
+or resolved and removed.

@@ -197,3 +197,28 @@ Route::get('/cloudinary-test', function () {
 
 Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
 	->name('documents.download');
+
+use App\Http\Controllers\DashboardController;
+
+/*
+|--------------------------------------------------------------------------
+| New System Dashboards (RBAC-aligned, non-legacy)
+|--------------------------------------------------------------------------
+| These routes coexist with legacy dashboards for now.
+| Legacy routes will be deprecated after role dashboards are complete.
+*/
+
+// End-user dashboard
+Route::middleware(['auth'])
+	->get('/dashboard', [DashboardController::class, 'user'])
+	->name('dashboard');
+
+// Admin dashboard
+Route::middleware(['auth', 'system.role:admin'])
+	->get('/admin/dashboard', [DashboardController::class, 'admin'])
+	->name('admin.dashboard');
+
+// Moderator dashboard (admins allowed)
+Route::middleware(['auth', 'system.role:moderator'])
+	->get('/moderator/dashboard', [DashboardController::class, 'moderator'])
+	->name('moderator.dashboard');

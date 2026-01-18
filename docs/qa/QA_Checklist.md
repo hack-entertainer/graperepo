@@ -287,3 +287,7 @@
 
 ## Misc. bugs
 - [ ] **users can see entire dashboard**
+
+## Tech Debt./ Shipping requirements / Misc.
+- [ ] restrict Stripe to ACH payments.
+

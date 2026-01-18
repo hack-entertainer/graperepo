@@ -2,20 +2,21 @@ FROM dunglas/frankenphp:1-php8.4
 
 WORKDIR /app
 
-# PHP extensions
+# PHP extensions (including GD)
 RUN install-php-extensions \
     pdo_mysql \
     mbstring \
     intl \
     zip \
     opcache \
-    exif
+    exif \
+    gd
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy composer files first (better cache behavior)
+# Copy application files
 COPY . .
 
 # Create Laravel-required directories BEFORE composer install
@@ -35,10 +36,7 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-# Copy the rest of the application
-COPY . .
-
-# Ownership for runtime (FrankenPHP runs as www-data)
+# Ensure correct ownership for runtime (FrankenPHP runs as www-data)
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 8000

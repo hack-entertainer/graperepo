@@ -2,6 +2,9 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -50,6 +53,17 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // Redirect forbidden (403) web requests to homepage
+        if (
+            ! $request->expectsJson() &&
+            (
+                $exception instanceof AuthorizationException ||
+                ($exception instanceof HttpExceptionInterface && $exception->getStatusCode() === 403)
+            )
+        ) {
+            return redirect('/');
+        }
+
         return parent::render($request, $exception);
     }
 }

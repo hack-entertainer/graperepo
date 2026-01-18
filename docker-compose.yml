@@ -1,5 +1,7 @@
 services:
   app:
+    build:
+      context: .
     image: graperepo-franken
     container_name: graperepo
     ports:
