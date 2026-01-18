@@ -116,6 +116,29 @@
 						@endif
 					</div>
 
+					{{-- 🗳 Incident Voting --}}
+					@auth
+					@php
+					$currentVote = $currentVote ?? null;
+					$canVote = $canVote ?? (auth()->user()->credits_comment >= config('pricing.vote.incident'));
+					$cannotVoteReason = $cannotVoteReason ?? 'You need to purchase comment credits to vote.';
+					@endphp
+
+					@include('widgets.voting', [
+					'purpose' => 'Vote on this incident',
+					'targetType' => 'incident',
+					'targetId' => $report->id,
+					'currentVote' => $currentVote,
+					'canVote' => $canVote,
+					'reason' => $cannotVoteReason,
+					'cost' => config('pricing.vote.incident'),
+					])
+					@else
+					<p class="text-muted mt-3">
+						Please <a href="{{ route('login.form') }}">log in</a> to vote on this incident.
+					</p>
+					@endauth
+
 					{{-- Response Action Buttons (BS4) --}}
 					<div class="mt-4">
 						@auth
@@ -239,6 +262,7 @@
 			</div>
 		</div>
 	</div>
+
 </section>
 @include('frontend.pages.reports.components.buy-comment-modal', [
 'report' => $report

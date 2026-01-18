@@ -222,3 +222,8 @@ Route::middleware(['auth', 'system.role:admin'])
 Route::middleware(['auth', 'system.role:moderator'])
 	->get('/moderator/dashboard', [DashboardController::class, 'moderator'])
 	->name('moderator.dashboard');
+
+#voting route
+Route::post('/votes', [\App\Http\Controllers\VoteController::class, 'store'])
+	->middleware(['auth'])
+	->name('votes.store');
