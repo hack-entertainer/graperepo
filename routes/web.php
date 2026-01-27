@@ -225,3 +225,9 @@ Route::middleware(['auth', 'system.role:moderator'])
 
 //acknowledgement gate
 Route::post('/acknowledge', [\App\Http\Controllers\FrontendController::class, 'acknowledge']);
+
+
+// voting
+Route::post('/votes', [\App\Http\Controllers\VoteController::class, 'store'])
+	->middleware(['auth'])
+	->name('votes.store');
