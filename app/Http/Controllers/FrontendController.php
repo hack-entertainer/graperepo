@@ -24,6 +24,13 @@ use Illuminate\Support\Facades\Validator;
 class FrontendController extends Controller
 {
 
+	public function acknowledge(\Illuminate\Http\Request $request)
+	{
+		$request->session()->put('landing_acknowledged', true);
+
+		return redirect('/list-reports');
+	}
+
 	public function index(Request $request)
 	{
 		return redirect()->route($request->user()->role);

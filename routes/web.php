@@ -222,3 +222,6 @@ Route::middleware(['auth', 'system.role:admin'])
 Route::middleware(['auth', 'system.role:moderator'])
 	->get('/moderator/dashboard', [DashboardController::class, 'moderator'])
 	->name('moderator.dashboard');
+
+//acknowledgement gate
+Route::post('/acknowledge', [\App\Http\Controllers\FrontendController::class, 'acknowledge']);
