@@ -12,6 +12,9 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
+use App\Models\Vote;
+use Illuminate\Support\Facades\Auth;
+
 use App\User;
 
 class ReportsController extends Controller
@@ -338,11 +341,33 @@ class ReportsController extends Controller
 			->orderBy('created_at', 'asc')
 			->get();
 
+
+		// Voting (read-only)
+		$currentVote = null;
+		$canVote = false;
+
+		if (Auth::check()) {
+			$latestVote = Vote::where('user_id', Auth::id())
+				->where('target_type', 'report')
+				->where('target_id', $report->id)
+				->latest()
+				->first();
+
+			$currentVote = $latestVote ? $latestVote->vote_value : null;
+			$canVote = true;
+		}
+
 		return view('frontend.pages.reports.detail', [
 			'report' => $report,
 			'report_response' => $report_response,
 			'report_comments' => $report_comments,
 			'documents' => $documents,
+
+			'votePurpose' => 'incident',
+			'voteReason' => 'advisory-only',
+			'currentVote' => $currentVote,
+			'canVote' => $canVote,
+
 		]);
 	}
 

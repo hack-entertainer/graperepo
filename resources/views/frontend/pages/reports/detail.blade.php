@@ -232,11 +232,25 @@
 			</div>
 
 			<div class="col-lg-5 mt-4 mt-lg-0">
+
+				{{-- Voting --}}
+				@include('widgets.voting', [
+				'report' => $report,
+				'purpose' => 'incident',
+				'reason' => 'advisory-only',
+				'currentVote' => null,
+				'canVote' => false,
+				])
+
+
+
 				@include('frontend.pages.reports.components.comments', [
 				'report' => $report,
 				'report_comments' => $report_comments
 				])
+
 			</div>
+
 		</div>
 	</div>
 </section>
