@@ -236,13 +236,11 @@
 				{{-- Voting --}}
 				@include('widgets.voting', [
 				'report' => $report,
-				'purpose' => 'incident',
-				'reason' => 'advisory-only',
-				'currentVote' => null,
-				'canVote' => false,
+				'purpose' => $purpose,
+				'reason' => $reason,
+				'currentVote' => $currentVote,
+				'canVote' => $canVote,
 				])
-
-
 
 				@include('frontend.pages.reports.components.comments', [
 				'report' => $report,

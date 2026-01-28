@@ -341,8 +341,7 @@ class ReportsController extends Controller
 			->orderBy('created_at', 'asc')
 			->get();
 
-
-		// Voting (read-only)
+		// Voting state
 		$currentVote = null;
 		$canVote = false;
 
@@ -358,18 +357,19 @@ class ReportsController extends Controller
 		}
 
 		return view('frontend.pages.reports.detail', [
-			'report' => $report,
-			'report_response' => $report_response,
-			'report_comments' => $report_comments,
-			'documents' => $documents,
+			'report'           => $report,
+			'report_response'  => $report_response,
+			'report_comments'  => $report_comments,
+			'documents'        => $documents,
 
-			'votePurpose' => 'incident',
-			'voteReason' => 'advisory-only',
-			'currentVote' => $currentVote,
-			'canVote' => $canVote,
-
+			// voting inputs
+			'purpose'          => 'incident',
+			'reason'           => 'advisory-only',
+			'currentVote'      => $currentVote,
+			'canVote'          => $canVote,
 		]);
 	}
+
 
 	/**
 	 * Submit a subject response (Stripe checkout entry point)
