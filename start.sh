@@ -8,6 +8,7 @@ cd "$(dirname "$0")"
 
 # Ensure storage directories exist
 mkdir -p storage/framework/{cache,data,sessions,testing,views}
+mkdir -p storage/logs
 mkdir -p bootstrap/cache
 chmod -R 775 storage bootstrap/cache || true
 
