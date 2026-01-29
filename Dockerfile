@@ -42,4 +42,8 @@ RUN chown -R 1000:1000 /app/storage /app/bootstrap/cache
 
 EXPOSE 8000
 
-CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+ENTRYPOINT ["/app/start.sh"]
+# CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
