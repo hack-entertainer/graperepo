@@ -21,6 +21,7 @@ COPY . .
 
 # Create Laravel-required directories BEFORE composer install
 RUN mkdir -p \
+    storage/logs \
     storage/framework/cache \
     storage/framework/views \
     storage/framework/sessions \
