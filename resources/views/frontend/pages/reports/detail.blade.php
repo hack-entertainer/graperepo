@@ -255,5 +255,6 @@
 @include('frontend.pages.reports.components.buy-comment-modal', [
 'report' => $report
 ])
+@include('components.modals.vote-credit-purchase')
 
 @endsection

@@ -344,29 +344,45 @@ class ReportsController extends Controller
 		// Voting state
 		$currentVote = null;
 		$canVote = false;
+		$canAffordVote = false;
+
+		$voteCost = (int) config('pricing.vote.incident');
+		$currentCredits = 0;
+		$voteCreditDeficit = $voteCost;
 
 		if (Auth::check()) {
-			$latestVote = Vote::where('user_id', Auth::id())
+			$canVote = true;
+
+			/** @var \App\Models\User $user */
+			$user = Auth::user();
+			$currentCredits = (int) $user->credits_comment;
+			$canAffordVote = $currentCredits >= $voteCost;
+			$voteCreditDeficit = max(0, $voteCost - $currentCredits);
+
+			$latestVote = Vote::where('user_id', $user->id)
 				->where('target_type', 'report')
 				->where('target_id', $report->id)
 				->latest()
 				->first();
 
 			$currentVote = $latestVote ? $latestVote->vote_value : null;
-			$canVote = true;
 		}
 
 		return view('frontend.pages.reports.detail', [
-			'report'           => $report,
-			'report_response'  => $report_response,
-			'report_comments'  => $report_comments,
-			'documents'        => $documents,
+			'report'             => $report,
+			'report_response'    => $report_response,
+			'report_comments'    => $report_comments,
+			'documents'          => $documents,
 
 			// voting inputs
-			'purpose'          => 'incident',
-			'reason'           => 'advisory-only',
-			'currentVote'      => $currentVote,
-			'canVote'          => $canVote,
+			'purpose'            => 'incident',
+			'reason'             => 'advisory-only',
+			'currentVote'        => $currentVote,
+			'canVote'            => $canVote,
+			'canAffordVote'      => $canAffordVote,
+			'voteCost'           => $voteCost,
+			'voteCreditDeficit'  => $voteCreditDeficit,
+			'currentCredits' => $currentCredits,
 		]);
 	}
 
@@ -523,12 +539,27 @@ class ReportsController extends Controller
 	public function buyCommentPackage(Request $request, $report_id)
 	{
 		$credits = (int) $request->input('package');
-		$price = match ($credits) {
-			1 => 0.81,
-			25 => 12.92,
-			100 => 50.77,
-			default => abort(400, 'Invalid package'),
-		};
+		switch ($credits) {
+			case 1:
+				$price = 0.81;
+				break;
+			case 2:
+				$price = 1.62;
+				break;
+			case 3:
+				$price = 2.43;
+				break;
+			case 25:
+				$price = 12.92;
+				break;
+			case 100:
+				$price = 50.77;
+				break;
+			default:
+				abort(400, 'Invalid package');
+		}
+
+
 		// get report number
 		$report = Reports::where('id', $report_id)->first();
 

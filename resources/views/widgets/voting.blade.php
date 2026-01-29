@@ -31,55 +31,55 @@
     </p>
     @endif
 
+    {{-- Voting interaction --}}
+    @if (! $canVote)
+
+    <p class="text-muted mt-3">
+        Log in to participate.
+    </p>
+
+    @elseif (! $canAffordVote)
+
+    <p class="text-muted mt-3 mb-2">
+        Voting requires {{ $voteCost }} comment credits.
+    </p>
+
+    <button
+        type="button"
+        class="btn btn-warning"
+        data-toggle="modal"
+        data-target="#buyVoteCreditsModal">
+        Buy {{ $voteCreditDeficit }} Credit{{ $voteCreditDeficit === 1 ? '' : 's' }} to Vote
+    </button>
+
+    @else
+
     <div class="d-flex justify-content-center gap-2 mt-3">
 
-        {{-- Support --}}
         <form method="POST" action="{{ route('votes.store') }}">
             @csrf
-
             <input type="hidden" name="target_type" value="report">
             <input type="hidden" name="target_id" value="{{ $report->id }}">
             <input type="hidden" name="vote_value" value="support">
             <input type="hidden" name="purpose" value="{{ $purpose }}">
-
-            <!-- <button
-                type="submit"
-                class="btn btn-outline-success"
-                @disabled(! $canVote)>
-                Support
-            </button> -->
-            <button
-                type="submit"
-                class="btn btn-outline-success"
-                onclick="alert('clicked')"
-                @disabled(! $canVote)>
+            <button type="submit" class="btn btn-outline-success">
                 Support
             </button>
-
         </form>
 
-        {{-- Oppose --}}
         <form method="POST" action="{{ route('votes.store') }}">
             @csrf
-
             <input type="hidden" name="target_type" value="report">
             <input type="hidden" name="target_id" value="{{ $report->id }}">
             <input type="hidden" name="vote_value" value="oppose">
             <input type="hidden" name="purpose" value="{{ $purpose }}">
-
-            <button
-                type="submit"
-                class="btn btn-outline-danger"
-                @disabled(! $canVote)>
+            <button type="submit" class="btn btn-outline-danger">
                 Oppose
             </button>
         </form>
 
     </div>
 
-    {{-- Explicit state indicator --}}
-    <p class="text-muted mt-3 mb-0">
-        Voting enabled: {{ $canVote ? 'yes' : 'no' }}
-    </p>
+    @endif
 
 </div>
