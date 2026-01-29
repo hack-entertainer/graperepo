@@ -27,7 +27,7 @@ RUN mkdir -p \
     storage/framework/sessions \
     bootstrap/cache
 
-# Set safe permissions
+# Set permissions (group-writable)
 RUN chmod -R 775 storage bootstrap/cache
 
 # Install dependencies
@@ -37,8 +37,8 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-# Ensure correct ownership for runtime (FrankenPHP runs as www-data)
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Ensure correct ownership for Railway / FrankenPHP runtime (numeric UID)
+RUN chown -R 1000:1000 /app/storage /app/bootstrap/cache
 
 EXPOSE 8000
 
