@@ -1,126 +1,165 @@
-# Release Checklist – File Uploads, Payments, and Infrastructure
+# Release Checklist — RRDB (Concrete Shipping Pipeline)
 
-This checklist must be reviewed and explicitly verified before deploying to **staging** or **production**.
+This checklist governs **promotion of builds** from staging → smoketest → production.
+All environments share the **same Dockerfile, start.sh, and boot path**.
+Promotion is performed via **Git merge + push**, not infra mutation.
 
-Nothing in this system is allowed to “just work by default”.
+Nothing is allowed to “just work by default”.
 
 ---
 
-## 1. PHP Runtime Configuration (CRITICAL)
+## 0. Promotion Model (Non-Negotiable)
 
-Verify **web SAPI** configuration (not CLI):
+- Environments:
+  - `staging` → implementation and fixes
+  - `smoketest` → prod-parity verification gate
+  - `production` → observation + serving only
 
-- [ ] `upload_max_filesize` ≥ largest supported upload  
-  - **Recommended:** `>= 150M` (videos grow)
-- [ ] `post_max_size` ≥ `upload_max_filesize` + form overhead  
-  - **Recommended:** `>= 160M`
-- [ ] `memory_limit` sufficient for large multipart uploads  
-  - **Recommended:** `>= 512M` or `-1` (unlimited)
-- [ ] `max_execution_time` sufficient for slow uploads  
-  - **Recommended:** `>= 120`
-- [ ] `max_input_time` sufficient for slow uploads  
-  - **Recommended:** `>= 120`
+- Promotion rule:
+  - Code moves **forward only**
+  - No direct changes in production
+  - All prod releases originate from smoketest-verified commits
+
+- Rollback rule:
+  - Checkout known-good **tag**
+  - Push to target environment
+  - No infra changes required
+
+---
+
+## 1. Git Discipline (Release Control)
+
+- [ ] Release commit is **tagged**
+  - e.g. `vYYYY.MM.DD`, `release-YYYYMMDD`, or semantic tag
+- [ ] Tag points to a commit that:
+  - Booted successfully
+  - Ran migrations cleanly
+  - Served traffic in smoketest
+- [ ] Production deploys **only tagged commits**
+- [ ] Rollback path verified (tag can be re-pushed)
+
+---
+
+## 2. Container Boot Verification (Critical)
+
+- [ ] Dockerfile uses **ENTRYPOINT → start.sh**
+- [ ] FrankenPHP is **not** invoked directly via CMD
+- [ ] `start.sh` responsibilities confirmed:
+  - Filesystem prep (storage, cache, logs)
+  - Forced, idempotent migrations
+  - Env-gated seeders
+  - `exec frankenphp run …` as final step
+
+Failure signature to watch for:
+- FrankenPHP starts
+- No Laravel logs
+- No migrations  
+→ Broken boot path
+
+---
+
+## 3. PHP Runtime Configuration (Web SAPI)
+
+Verify via **web runtime**, not CLI:
+
+- [ ] `upload_max_filesize` ≥ 150M
+- [ ] `post_max_size` ≥ upload + overhead
+- [ ] `memory_limit` ≥ 512M (or unlimited)
+- [ ] `max_execution_time` ≥ 120
+- [ ] `max_input_time` ≥ 120
 - [ ] `file_uploads = On`
 
-**Verify using the web runtime**, not CLI:
-- Temporary route using `phpinfo()`
-- Or a diagnostic controller action
+---
+
+## 4. Laravel Runtime Sanity
+
+- [ ] `APP_ENV` correct
+- [ ] `APP_URL` correct (Stripe redirects)
+- [ ] Session driver stable
+- [ ] Storage directories writable
+- [ ] No debug config in smoketest / prod
 
 ---
 
-## 2. Web Server Layer (Apache / Nginx)
+## 5. Database Integrity
 
-Confirm server-level limits do not override PHP:
-
-### Apache
-- [ ] `LimitRequestBody` not set or set sufficiently high
-- [ ] No per-vhost overrides restricting uploads
-
-### Nginx (if applicable)
-- [ ] `client_max_body_size` ≥ PHP limits
+- [ ] Migrations run automatically at boot
+- [ ] No missing tables or columns
+- [ ] Seeders are:
+  - Idempotent
+  - Env-gated
+- [ ] No manual DB intervention required
 
 ---
 
-## 3. Laravel Configuration
+## 6. External Services (Prod-Grade)
 
-- [ ] `SESSION_DRIVER` stable for multi-step Stripe flow (`file`, `redis`, or `database`)
-- [ ] Session storage writable and persistent
-- [ ] `APP_URL` correct (Stripe redirects depend on it)
-- [ ] `APP_ENV` correct for Cloudinary + Stripe mode
+### Cloudinary
+- [ ] Correct credentials
+- [ ] Correct resource types (`raw`, `video`)
+- [ ] Folder structure verified
+- [ ] Upload + retrieval tested
 
----
-
-## 4. Cloudinary Configuration
-
-- [ ] `CLOUDINARY_URL` set in environment
-- [ ] Video uploads use `resource_type = video`
-- [ ] Document uploads use `resource_type = raw`
-- [ ] Folder structure correct:
-  - `reports/letters`
-  - `reports/videos`
-- [ ] Test upload visible in Cloudinary dashboard
+### Stripe
+- [ ] Keys match environment
+- [ ] Success + cancel URLs reachable
+- [ ] DB writes only after confirmed success
+- [ ] Cancel path cleans up external resources
 
 ---
 
-## 5. Stripe Payment Flow
+## 7. UI / UX Sanity
 
-- [ ] Stripe keys correct for environment (test vs live)
-- [ ] Success URL reachable and returns 200
-- [ ] Cancel URL reachable and cleans up uploaded files
-- [ ] Database write occurs **only after** Stripe success
-- [ ] Failed / canceled payments do **not** leave orphaned uploads
-
----
-
-## 6. Database Integrity
-
-- [ ] Columns exist:
-  - `letter_public_id`
-  - `letter_public_url`
-  - `video_public_id`
-  - `video_public_url`
-- [ ] No legacy paths relied upon for new uploads
-- [ ] New reports persist Cloudinary IDs and URLs correctly
-
----
-
-## 7. UI / UX Validation
-
-- [ ] PDF download link visible when present
-- [ ] Video link visible when present
-- [ ] No broken links when files are absent
-- [ ] Form submission with:
+- [ ] All submission paths exercised:
   - No files
   - PDF only
   - Video only
   - PDF + video
-- [ ] All cases complete Stripe flow successfully
+- [ ] No broken links
+- [ ] No silent failures
+- [ ] Errors are explicit and user-visible
 
 ---
 
-## 8. Cleanup & Failure Modes
+## 8. Smoketest Gate (Before Prod)
 
-- [ ] Stripe cancel deletes uploaded files (Cloudinary destroy)
-- [ ] Partial uploads do not block resubmission
-- [ ] No stale session data after success or cancel
+Smoketest must demonstrate:
+- Clean boot
+- Real credentials
+- Real uploads
+- Real payments (or live-equivalent flows)
+- Stable serving under normal usage
 
----
-
-## 9. Post-Deploy Verification
-
-- [ ] Upload real PDF
-- [ ] Upload real MP4
-- [ ] Complete payment
-- [ ] Verify DB row
-- [ ] Download / view files from report detail page
-- [ ] Confirm Cloudinary assets exist and are accessible
+If smoketest passes:
+→ Production is a **promotion**, not a new deployment.
 
 ---
 
-## 10. Explicit Sign-Off
+## 9. Production Bug Policy (Hard Rule)
 
-This release is not approved until **all** above items are checked.
+- Production is **observation-only**
+- No direct fixes in production
+- Bugs are:
+  - Identified via prod logs/signals
+  - Fixed in **staging**
+  - Verified in **smoketest**
+  - Tagged
+  - Promoted to **production**
 
-- Environment verified: ☐ Staging ☐ Production
-- Verified by: ______________________
-- Date: _____________________________
+---
+
+## 10. Production Day Behavior
+
+- [ ] No feature changes
+- [ ] No schema changes
+- [ ] Monitor logs and error rates
+- [ ] Improve logging / observability only
+
+---
+
+## 11. Explicit Release Sign-Off
+
+- Tagged release: ______________________
+- Smoketest verified: ☐
+- Promoted to production: ☐
+- Date: _______________________________

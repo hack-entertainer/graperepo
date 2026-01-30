@@ -81,13 +81,6 @@ Cache problems lie.
 
 
 
-
-
-
-
-
-
-
 IS DOCKER REBUILDING PART OF TROUBLESHOOTING?
 
 YES — but only when inputs to the IMAGE change.
@@ -167,3 +160,43 @@ docker build -t graperepo-franken .
 
 # run
 docker run --rm -p 8000:80 --add-host=host.docker.internal:host-gateway graperepo-franken
+
+
+# SECTION: CONTAINER STARTS BUT APP NEVER BOOTS
+
+### Symptom
+- FrankenPHP logs appear healthy
+- Caddy binds to port
+- No Laravel output
+- No migrations
+- App may return empty responses or static output
+
+### Root Cause (High Probability)
+Docker is invoking FrankenPHP directly via `CMD`
+instead of running `start.sh`.
+
+### Diagnosis
+Check Dockerfile:
+grep -R "ENTRYPOINT\|CMD" Dockerfile
+
+If you see:
+CMD ["frankenphp", ...]
+and no ENTRYPOINT → this is the bug.
+
+### Fix
+- Remove FrankenPHP CMD
+- Add explicit ENTRYPOINT to start.sh
+- Ensure start.sh ends with:
+  exec frankenphp run ...
+
+### Why This Is Tricky
+This failure mode is *silent*:
+- No crashes
+- No stack traces
+- Looks like infra is fine
+But Laravel never executes.
+
+### Mental Model (Extended)
+Infra problems stop the app.  
+Cache problems lie.  
+**Boot-path problems run the wrong program.**

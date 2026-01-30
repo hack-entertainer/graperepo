@@ -86,3 +86,39 @@
 Dockerfile = reality  
 docker-compose.override.yml = convenience  
 Shell env ≠ Laravel .env
+
+## Railway / FrankenPHP Boot Path (Critical)
+
+### ENTRYPOINT vs CMD (Hard Rule)
+- **start.sh must be the ENTRYPOINT**
+- FrankenPHP must **never** be invoked directly via Docker `CMD`
+
+❌ Anti-pattern (breaks Laravel boot):
+CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
+
+Why this fails:
+- Bypasses start.sh entirely
+- Laravel never runs
+- No migrations, no seeders, no logs
+- FrankenPHP appears healthy but serves an uninitialized app
+
+✅ Correct pattern:
+ENTRYPOINT ["/app/start.sh"]
+
+start.sh responsibilities:
+- Prepare filesystem (storage, cache, logs)
+- Run migrations (forced, idempotent)
+- Optionally run env-gated seeders
+- `exec frankenphp run ...` as the final step
+
+### Operational Consequence
+If the app “starts” but Laravel never logs:
+- Suspect ENTRYPOINT/CMD first
+- Not permissions
+- Not DB wiring
+- Not FrankenPHP itself
+
+This rule applies identically to:
+- staging
+- smoketest
+- production
