@@ -45,5 +45,7 @@ EXPOSE 8000
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
+# IMPORTANT:
+# Do not run FrankenPHP directly via CMD.
+# start.sh must run first (migrations, seeders, permissions).
 ENTRYPOINT ["/app/start.sh"]
-# CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
