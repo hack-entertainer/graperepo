@@ -1,12 +1,12 @@
 FROM dunglas/frankenphp:1-php8.4
 
-ARG CACHE_BUSTER=2026-01-31-dom
+ARG CACHE_BUSTER=2026-01-31-dom-bom
 
 WORKDIR /app
 
 # PHP extensions (including GD)
 RUN install-php-extensions \
-    dom \
+    xml \
     pdo_mysql \
     mbstring \
     intl \
