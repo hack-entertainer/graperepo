@@ -200,3 +200,15 @@ But Laravel never executes.
 Infra problems stop the app.  
 Cache problems lie.  
 **Boot-path problems run the wrong program.**
+
+
+# SECTION: VERIFY IMAGE PARITY (LOCAL == RAILWAY)
+
+# Purpose:
+# Prove that the Docker image contains required PHP extensions
+# and that Laravel Artisan can boot successfully.
+# If this passes locally, Railway will not fail on build/runtime.
+
+docker build --no-cache -t rrdb-franken . \
+&& docker run --rm rrdb-franken php -m | grep dom \
+&& docker run --rm rrdb-franken php artisan optimize:clear

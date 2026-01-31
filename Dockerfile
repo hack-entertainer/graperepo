@@ -4,6 +4,7 @@ WORKDIR /app
 
 # PHP extensions (including GD)
 RUN install-php-extensions \
+    dom \
     pdo_mysql \
     mbstring \
     intl \
