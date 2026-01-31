@@ -20,6 +20,9 @@ class ReportScenarioBuilder
         $this->users = collect();
     }
 
+    /**
+     * Entry point used by scenario seeders.
+     */
     public function materialize(array $scenario): void
     {
         $this->scenario = $scenario;
@@ -30,6 +33,10 @@ class ReportScenarioBuilder
         $this->addCommunityComments();
     }
 
+    /**
+     * Ensure all referenced users exist.
+     * Missing users are a configuration error.
+     */
     protected function resolveUsers(): void
     {
         $emails = collect([
@@ -41,24 +48,28 @@ class ReportScenarioBuilder
 
         foreach ($emails as $email) {
             if (! $users->has($email)) {
-                throw new \RuntimeException(
-                    "Scenario user not found: {$email}"
-                );
+                throw new \RuntimeException("Scenario user not found: {$email}");
             }
         }
 
         $this->users = $users;
     }
 
+    /**
+     * Create the report as the reporter.
+     * Idempotent via origin_key.
+     */
     protected function createReportAsReporter(): void
     {
         $key = Arr::get($this->scenario, 'key');
-
         if (! $key) {
             throw new \RuntimeException('Scenario key is required');
         }
 
-        $existing = Reports::where('scenario_key', $key)->first();
+        $originKey = "demo:{$key}";
+
+        // Idempotency guard
+        $existing = Reports::where('origin_key', $originKey)->first();
         if ($existing) {
             $this->report = $existing;
             return;
@@ -69,26 +80,57 @@ class ReportScenarioBuilder
         );
 
         $report = new Reports();
-        $report->scenario_key = $key;
-        $report->reporter_id  = $reporter->id;
+        $report->report_number = Reports::generateReportNumber();
 
-        $report->incident_type = Arr::get($this->scenario, 'incident.type');
-        $report->description   = Arr::get($this->scenario, 'incident.description');
+        // Origin metadata
+        $report->origin_type = 'demo';
+        $report->origin_key  = $originKey;
 
-        $report->subject_name  = Arr::get($this->scenario, 'subject.name');
-        $report->subject_email = Arr::get($this->scenario, 'subject.email');
-        $report->subject_phone = Arr::get($this->scenario, 'subject.phone');
+        // Reporter identity
+        $report->reporter_id    = $reporter->id;
+        $report->reporter_name  = Arr::get($this->scenario, 'reporter.name');
+        $report->reporter_email = Arr::get($this->scenario, 'reporter.email');
+
+        // Incident details
+        $report->type_event  = Arr::get($this->scenario, 'incident.type');
+        $report->description = Arr::get($this->scenario, 'incident.description');
+
+        // Event date (required, no default in schema)
+        $report->event_date = Arr::get(
+            $this->scenario,
+            'incident.event_date',
+            now()->toDateString()
+        );
+
+        // Optional evidence
+        $report->video_link = Arr::get($this->scenario, 'incident.evidence.0');
+
+        // Subject identity
+        $report->subject_fullname = Arr::get($this->scenario, 'subject.name');
+        $report->subject_email    = Arr::get($this->scenario, 'subject.email');
+        $report->subject_phone    = Arr::get($this->scenario, 'subject.phone');
+
+        // Subject address
+        $report->subject_address = Arr::get($this->scenario, 'subject.address.street');
+        $report->subject_city    = Arr::get($this->scenario, 'subject.address.city');
+        $report->subject_state   = Arr::get($this->scenario, 'subject.address.state');
+        $report->subject_zipcode = Arr::get($this->scenario, 'subject.address.zip');
+        $report->subject_country = Arr::get($this->scenario, 'subject.address.country');
 
         $report->save();
 
         $this->report = $report;
     }
 
+    /**
+     * Add the subject's response.
+     * One response per report.
+     */
     protected function addSubjectResponse(): void
     {
-        $body = Arr::get($this->scenario, 'subject_response');
+        $content = Arr::get($this->scenario, 'subject_response');
 
-        if (! $body) {
+        if (! $content) {
             return;
         }
 
@@ -100,30 +142,29 @@ class ReportScenarioBuilder
         ReportResponse::firstOrCreate(
             [
                 'report_id' => $report->id,
+                'user_id'   => $subject->id,
+                'type' => 'subject_responses',
             ],
             [
-                'user_id' => $subject->id,
-                'body'    => $body,
+                'user_fullname' => Arr::get($this->scenario, 'subject.name'),
+                'content'       => $content,
             ]
         );
     }
 
+
     /**
-     * Add community comments using a rotating commenter pool.
-     *
-     * Idempotent: (report_id + position) is the uniqueness boundary.
+     * Add community comments using a deterministic commenter pool.
      */
     protected function addCommunityComments(): void
     {
         $comments = Arr::get($this->scenario, 'community_comments', []);
-
         if (empty($comments)) {
             return;
         }
 
         $report = $this->report();
 
-        // Pull deterministic commenter pool
         $commenters = User::where('email', 'like', 'commenter%@demo.local')
             ->orderBy('email')
             ->get();
@@ -132,21 +173,22 @@ class ReportScenarioBuilder
             throw new \RuntimeException('No community commenters available');
         }
 
-        foreach ($comments as $index => $body) {
+        foreach ($comments as $index => $content) {
             $author = $commenters[$index % $commenters->count()];
 
             ReportComments::firstOrCreate(
                 [
                     'report_id' => $report->id,
-                    'position'  => $index,
+                    'user_id'   => $author->id,
+                    'content'   => $content,
                 ],
                 [
-                    'user_id' => $author->id,
-                    'body'    => $body,
+                    'user_fullname' => $author->name,
                 ]
             );
         }
     }
+
 
     protected function user(string $email): User
     {

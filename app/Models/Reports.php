@@ -62,6 +62,11 @@ class Reports extends Model
         'paid_at',
     ];
 
+    public static function generateReportNumber(): string
+    {
+        return now()->format('Y') . '-RRDB-' . strtoupper(uniqid());
+    }
+
     public function documents()
     {
         return $this->hasMany(Document::class);

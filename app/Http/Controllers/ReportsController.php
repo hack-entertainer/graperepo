@@ -248,7 +248,7 @@ class ReportsController extends Controller
 			'description' => $data['description'],
 			'video_link'  => $data['video_link'] ?? null,
 
-			'report_number'  => now()->format('Y') . '-RRDB-' . strtoupper(uniqid()),
+			'report_number' => Reports::generateReportNumber(),
 			'is_paid'        => true,
 			'payment_status' => 'paid',
 			'paid_at'        => now(),
