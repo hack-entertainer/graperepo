@@ -1,6 +1,6 @@
 FROM dunglas/frankenphp:1-php8.4
 
-ARG CACHE_BUSTER=2026-01-31-dom-bom
+ARG CACHE_BUSTER=2026-01-31-dom-2
 
 WORKDIR /app
 
