@@ -1,6 +1,6 @@
 FROM dunglas/frankenphp:1-php8.4
 
-ARG CACHE_BUSTER=2026-01-31-dom-2
+ARG CACHE_BUSTER=2026-01-31-dom-3
 
 WORKDIR /app
 
@@ -14,6 +14,8 @@ RUN install-php-extensions \
     opcache \
     exif \
     gd
+
+RUN docker-php-ext-enable dom
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer \
