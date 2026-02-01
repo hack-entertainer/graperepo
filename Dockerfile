@@ -5,8 +5,11 @@ ARG CACHE_BUSTER=2026-01-31-dom-3
 WORKDIR /app
 
 # PHP extensions (including GD)
+RUN apt-get update \
+ && apt-get install -y libxml2-dev \
+ && docker-php-ext-install dom
+
 RUN install-php-extensions \
-    xml \
     pdo_mysql \
     mbstring \
     intl \
@@ -15,7 +18,6 @@ RUN install-php-extensions \
     exif \
     gd
 
-RUN docker-php-ext-enable dom
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer \
